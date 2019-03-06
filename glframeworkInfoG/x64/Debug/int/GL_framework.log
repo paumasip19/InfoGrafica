@@ -1,0 +1,5 @@
+﻿  render.cpp
+c:\users\pauma\source\repos\glframeworkinfog\code\src\render.cpp(192): warning C4715: 'loadOBJ': not all control paths return a value
+  GL_framework.vcxproj -> C:\Users\pauma\source\repos\glframeworkInfoG\x64\Debug\GL_framework.exe
+  0 File(s) copied
+  0 File(s) copied
