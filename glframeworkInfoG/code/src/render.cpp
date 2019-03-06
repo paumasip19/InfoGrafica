@@ -471,24 +471,27 @@ uniform mat4 mv_Mat;\n\
 uniform mat4 mvpMat;\n\
 void main() {\n\
 	gl_Position = mvpMat * objMat * vec4(in_Position, 1.0);\n\
-	frag_pos = vec3(objMat * vec4(in_Position, 1.0));\n\
+	//frag_Pos = vec3(objMat * vec4(in_Position, 1.0));\n\
 	vert_Normal = mv_Mat * objMat * vec4(in_Normal, 0.0);\n\
 }";
 	const char* object_fragShader =
 		"#version 330\n\
-in vec3 vert_Normal;\n\
+in vec4 vert_Normal;\n\
 in vec3 frag_Pos;\n\
+out vec4 frag_Color;\n\
 uniform vec3 lightPos;\n\
-out vec4 out_Color;\n\
+uniform vec3 lightColor;\n\
 uniform mat4 mv_Mat;\n\
-uniform vec4 objectColor;\n\
+uniform vec3 objectColor;\n\
 void main() {\n\
-	vec3 norm = normalize(vert_Normal);\n\
+    float ambientStrength = 0.1;\n\
+	vec3 ambient = ambientStrength * lightColor;\n\
+	vec3 norm = normalize(vert_Normal.xyz);\n\
 	vec3 lightDir = normalize(lightPos - frag_Pos);\n\
 	float diff = max(dot(norm, lightDir), 0.0);\n\
 	vec3 diffuse = diff * lightColor;\n\
 	vec3 result = (ambient + diffuse) * objectColor;\n\
-	FragColor = vec4(result, 1.0);\n\
+	frag_Color = vec4(result, 1.0);\n\
 }";
 
 	void setupObject() {
@@ -511,9 +514,6 @@ void main() {\n\
 		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3)*normals.size(), normals.data(), GL_STATIC_DRAW);
 		glVertexAttribPointer((GLuint)1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(1);
-
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(0);
 
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -546,9 +546,10 @@ void main() {\n\
 		
 		glm::mat4 obj = glm::translate(objMat, glm::vec3(0.f, 0.f, 0.f));
 		glUniformMatrix4fv(glGetUniformLocation(objectProgram, "objMat"), 1, GL_FALSE, glm::value_ptr(obj));
-		glUniform4f(glGetUniformLocation(objectProgram, "color"), 1.f, 0.5f, 0.5f, 0.5f);
-
-		glUniform3f(glGetUniformLocation(objectProgram, "lightPos"), 10.f, 10.f, 10.f);
+		glUniform3f(glGetUniformLocation(objectProgram, "objectColor"), 1.f, 0.f, 0.f);
+		
+		glUniform3f(glGetUniformLocation(objectProgram, "lightColor"), 1.f, 0.f, 0.f);
+		glUniform3f(glGetUniformLocation(objectProgram, "lightPos"), 3.f, 3.f, 3.f);
 
 		glDrawArrays(GL_TRIANGLES, 0, 12*3);
 		
