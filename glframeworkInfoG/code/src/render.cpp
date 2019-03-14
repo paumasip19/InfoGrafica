@@ -476,7 +476,7 @@ glm::vec3 lPos = { 10, 15, 0 };
 glm::vec3 lColor = { 1, 1, 1 };
 float exponent = 32;
 
-namespace Object {
+namespace Object1 {
 	GLuint objectVao;
 	GLuint objectVbo[2];
 	GLuint objectShaders[2];
@@ -535,8 +535,6 @@ void main() {\n\
 
 	void setupObject() {
 
-		
-
 		loadOBJ("pistola1.obj", vertices, uvs, normals);
 		
 		glGenVertexArrays(1, &objectVao);
@@ -585,7 +583,7 @@ void main() {\n\
 		glUniformMatrix3fv(glGetUniformLocation(objectProgram, "viewPos"), 1, GL_FALSE, glm::value_ptr(RV::_cameraPoint));
 		//std::cout << RV::_cameraPoint.x <<" "<< RV::_cameraPoint.y <<" "<< RV::_cameraPoint.z << std::endl;
 		
-		glm::mat4 obj = glm::translate(objMat, glm::vec3(0.f, 0.f, 0.f));
+		glm::mat4 obj = glm::translate(objMat, glm::vec3(-8.f, 0.f, -15.f));
 		glUniformMatrix4fv(glGetUniformLocation(objectProgram, "objMat"), 1, GL_FALSE, glm::value_ptr(obj));
 		glUniform3f(glGetUniformLocation(objectProgram, "objectColor"), oC.x, oC.y, oC.z);
 		glUniform3f(glGetUniformLocation(objectProgram, "light"), lPos.x, lPos.y, lPos.z);
@@ -599,7 +597,499 @@ void main() {\n\
 		glBindVertexArray(0);
 	}
 }
-//My first point, and my first triangle:
+
+namespace Object2 {
+	GLuint objectVao;
+	GLuint objectVbo[2];
+	GLuint objectShaders[2];
+	GLuint objectProgram;
+	glm::mat4 objMat = glm::mat4(1.f);
+
+	const char* object_vertShader =
+		"#version 330\n\
+in vec3 in_Position;\n\
+in vec3 in_Normal;\n\
+out vec3 vert_Normal;\n\
+out vec3 frag_Pos;\n\
+out vec3 LightPos;\n\
+uniform vec3 light;\n\
+uniform mat4 objMat;\n\
+uniform mat4 mv_Mat;\n\
+uniform mat4 projection;\n\
+void main() {\n\
+	gl_Position = projection * objMat * vec4(in_Position, 1.0);\n\
+	frag_Pos = vec3(mv_Mat * objMat * vec4(in_Position, 1.0));\n\
+	vert_Normal = mat3(transpose(inverse(mv_Mat * objMat))) *in_Normal;\n\
+	LightPos = vec3(mv_Mat * vec4(light,1.0));\n\
+}";
+	const char* object_fragShader =
+		"#version 330\n\
+in vec3 vert_Normal;\n\
+in vec3 frag_Pos;\n\
+in vec3 LightPos;\n\
+out vec4 frag_Color;\n\
+uniform vec3 lightColor;\n\
+uniform mat4 mv_Mat;\n\
+uniform vec3 objectColor;\n\
+uniform vec3 viewPos;\n\
+uniform float ex;\n\
+void main() {\n\
+	//ambient \n\
+    float ambientStrength = 0.1;\n\
+	vec3 ambient = ambientStrength * lightColor;\n\
+	//diffuse\n\
+	vec3 norm = normalize(vert_Normal);\n\
+	vec3 lightDir = normalize(LightPos - frag_Pos);\n\
+	float diff = max(dot(norm, lightDir), 0.0);\n\
+	vec3 diffuse = diff * lightColor;\n\
+	//specular\n\
+	float specularStrength = 0.5f;\n\
+	vec3 viewDir = normalize(-frag_Pos);\n\
+	vec3 reflectDir = reflect(-lightDir, norm);\n\
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), ex);\n\
+	vec3 specular = specularStrength * spec * lightColor;\n\
+	vec3 result = (ambient + diffuse + specular) * objectColor;\n\
+	frag_Color = vec4(result, 1.0);\n\
+}";
+
+	std::vector< glm::vec3 > vertices, normals;
+	std::vector< glm::vec2 > uvs;
+
+	void setupObject() {
+
+
+
+		loadOBJ("trash.obj", vertices, uvs, normals);
+
+		glGenVertexArrays(1, &objectVao);
+		glBindVertexArray(objectVao);
+		glGenBuffers(2, objectVbo);
+
+		glBindBuffer(GL_ARRAY_BUFFER, objectVbo[0]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3)*vertices.size(), vertices.data(), GL_STATIC_DRAW);
+		glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, objectVbo[1]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3)*normals.size(), normals.data(), GL_STATIC_DRAW);
+		glVertexAttribPointer((GLuint)1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(1);
+
+		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		objectShaders[0] = compileShader(object_vertShader, GL_VERTEX_SHADER, "objectVert");
+		objectShaders[1] = compileShader(object_fragShader, GL_FRAGMENT_SHADER, "objectFrag");
+
+		objectProgram = glCreateProgram();
+		glAttachShader(objectProgram, objectShaders[0]);
+		glAttachShader(objectProgram, objectShaders[1]);
+		glBindAttribLocation(objectProgram, 0, "in_Position");
+		glBindAttribLocation(objectProgram, 1, "in_Normal");
+		linkProgram(objectProgram);
+	}
+	void cleanupObject() {
+		glDeleteBuffers(2, objectVbo);
+		glDeleteVertexArrays(1, &objectVao);
+
+		glDeleteProgram(objectProgram);
+		glDeleteShader(objectShaders[0]);
+		glDeleteShader(objectShaders[1]);
+	}
+	void drawObject(float time) {
+		glBindVertexArray(objectVao);
+		glUseProgram(objectProgram);
+
+		glUniformMatrix4fv(glGetUniformLocation(objectProgram, "mv_Mat"), 1, GL_FALSE, glm::value_ptr(RenderVars::_modelView));
+		glUniformMatrix4fv(glGetUniformLocation(objectProgram, "projection"), 1, GL_FALSE, glm::value_ptr(RenderVars::_MVP));
+
+		glUniformMatrix3fv(glGetUniformLocation(objectProgram, "viewPos"), 1, GL_FALSE, glm::value_ptr(RV::_cameraPoint));
+		//std::cout << RV::_cameraPoint.x <<" "<< RV::_cameraPoint.y <<" "<< RV::_cameraPoint.z << std::endl;
+
+		glm::mat4 obj = glm::translate(objMat, glm::vec3(4.f, 0.f, -10.f));
+		glUniformMatrix4fv(glGetUniformLocation(objectProgram, "objMat"), 1, GL_FALSE, glm::value_ptr(obj));
+		glUniform3f(glGetUniformLocation(objectProgram, "objectColor"), oC.x, oC.y, oC.z);
+		glUniform3f(glGetUniformLocation(objectProgram, "light"), lPos.x, lPos.y, lPos.z);
+		glUniform3f(glGetUniformLocation(objectProgram, "lightColor"), lColor.x, lColor.y, lColor.z);
+
+		glUniform1f(glGetUniformLocation(objectProgram, "ex"), exponent);
+
+		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+
+		glUseProgram(0);
+		glBindVertexArray(0);
+	}
+}
+
+namespace Object3 {
+	GLuint objectVao;
+	GLuint objectVbo[2];
+	GLuint objectShaders[2];
+	GLuint objectProgram;
+	glm::mat4 objMat = glm::mat4(1.f);
+
+	const char* object_vertShader =
+		"#version 330\n\
+in vec3 in_Position;\n\
+in vec3 in_Normal;\n\
+out vec3 vert_Normal;\n\
+out vec3 frag_Pos;\n\
+out vec3 LightPos;\n\
+uniform vec3 light;\n\
+uniform mat4 objMat;\n\
+uniform mat4 mv_Mat;\n\
+uniform mat4 projection;\n\
+void main() {\n\
+	gl_Position = projection * objMat * vec4(in_Position, 1.0);\n\
+	frag_Pos = vec3(mv_Mat * objMat * vec4(in_Position, 1.0));\n\
+	vert_Normal = mat3(transpose(inverse(mv_Mat * objMat))) *in_Normal;\n\
+	LightPos = vec3(mv_Mat * vec4(light,1.0));\n\
+}";
+	const char* object_fragShader =
+		"#version 330\n\
+in vec3 vert_Normal;\n\
+in vec3 frag_Pos;\n\
+in vec3 LightPos;\n\
+out vec4 frag_Color;\n\
+uniform vec3 lightColor;\n\
+uniform mat4 mv_Mat;\n\
+uniform vec3 objectColor;\n\
+uniform vec3 viewPos;\n\
+uniform float ex;\n\
+void main() {\n\
+	//ambient \n\
+    float ambientStrength = 0.1;\n\
+	vec3 ambient = ambientStrength * lightColor;\n\
+	//diffuse\n\
+	vec3 norm = normalize(vert_Normal);\n\
+	vec3 lightDir = normalize(LightPos - frag_Pos);\n\
+	float diff = max(dot(norm, lightDir), 0.0);\n\
+	vec3 diffuse = diff * lightColor;\n\
+	//specular\n\
+	float specularStrength = 0.5f;\n\
+	vec3 viewDir = normalize(-frag_Pos);\n\
+	vec3 reflectDir = reflect(-lightDir, norm);\n\
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), ex);\n\
+	vec3 specular = specularStrength * spec * lightColor;\n\
+	vec3 result = (ambient + diffuse + specular) * objectColor;\n\
+	frag_Color = vec4(result, 1.0);\n\
+}";
+
+	std::vector< glm::vec3 > vertices, normals;
+	std::vector< glm::vec2 > uvs;
+
+	void setupObject() {
+
+		loadOBJ("hammer1.obj", vertices, uvs, normals);
+
+		glGenVertexArrays(1, &objectVao);
+		glBindVertexArray(objectVao);
+		glGenBuffers(2, objectVbo);
+
+		glBindBuffer(GL_ARRAY_BUFFER, objectVbo[0]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3)*vertices.size(), vertices.data(), GL_STATIC_DRAW);
+		glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, objectVbo[1]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3)*normals.size(), normals.data(), GL_STATIC_DRAW);
+		glVertexAttribPointer((GLuint)1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(1);
+
+		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		objectShaders[0] = compileShader(object_vertShader, GL_VERTEX_SHADER, "objectVert");
+		objectShaders[1] = compileShader(object_fragShader, GL_FRAGMENT_SHADER, "objectFrag");
+
+		objectProgram = glCreateProgram();
+		glAttachShader(objectProgram, objectShaders[0]);
+		glAttachShader(objectProgram, objectShaders[1]);
+		glBindAttribLocation(objectProgram, 0, "in_Position");
+		glBindAttribLocation(objectProgram, 1, "in_Normal");
+		linkProgram(objectProgram);
+	}
+	void cleanupObject() {
+		glDeleteBuffers(2, objectVbo);
+		glDeleteVertexArrays(1, &objectVao);
+
+		glDeleteProgram(objectProgram);
+		glDeleteShader(objectShaders[0]);
+		glDeleteShader(objectShaders[1]);
+	}
+	void drawObject(float time) {
+		glBindVertexArray(objectVao);
+		glUseProgram(objectProgram);
+
+		glUniformMatrix4fv(glGetUniformLocation(objectProgram, "mv_Mat"), 1, GL_FALSE, glm::value_ptr(RenderVars::_modelView));
+		glUniformMatrix4fv(glGetUniformLocation(objectProgram, "projection"), 1, GL_FALSE, glm::value_ptr(RenderVars::_MVP));
+
+		glUniformMatrix3fv(glGetUniformLocation(objectProgram, "viewPos"), 1, GL_FALSE, glm::value_ptr(RV::_cameraPoint));
+		//std::cout << RV::_cameraPoint.x <<" "<< RV::_cameraPoint.y <<" "<< RV::_cameraPoint.z << std::endl;
+
+		glm::mat4 obj = glm::translate(objMat, glm::vec3(4.f, 0.f, -5.f));
+		glUniformMatrix4fv(glGetUniformLocation(objectProgram, "objMat"), 1, GL_FALSE, glm::value_ptr(obj));
+		glUniform3f(glGetUniformLocation(objectProgram, "objectColor"), oC.x, oC.y, oC.z);
+		glUniform3f(glGetUniformLocation(objectProgram, "light"), lPos.x, lPos.y, lPos.z);
+		glUniform3f(glGetUniformLocation(objectProgram, "lightColor"), lColor.x, lColor.y, lColor.z);
+
+		glUniform1f(glGetUniformLocation(objectProgram, "ex"), exponent);
+
+		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+
+		glUseProgram(0);
+		glBindVertexArray(0);
+	}
+}
+
+namespace Object4 {
+	GLuint objectVao;
+	GLuint objectVbo[2];
+	GLuint objectShaders[2];
+	GLuint objectProgram;
+	glm::mat4 objMat = glm::mat4(1.f);
+
+	const char* object_vertShader =
+		"#version 330\n\
+in vec3 in_Position;\n\
+in vec3 in_Normal;\n\
+out vec3 vert_Normal;\n\
+out vec3 frag_Pos;\n\
+out vec3 LightPos;\n\
+uniform vec3 light;\n\
+uniform mat4 objMat;\n\
+uniform mat4 mv_Mat;\n\
+uniform mat4 projection;\n\
+void main() {\n\
+	gl_Position = projection * objMat * vec4(in_Position, 1.0);\n\
+	frag_Pos = vec3(mv_Mat * objMat * vec4(in_Position, 1.0));\n\
+	vert_Normal = mat3(transpose(inverse(mv_Mat * objMat))) *in_Normal;\n\
+	LightPos = vec3(mv_Mat * vec4(light,1.0));\n\
+}";
+	const char* object_fragShader =
+		"#version 330\n\
+in vec3 vert_Normal;\n\
+in vec3 frag_Pos;\n\
+in vec3 LightPos;\n\
+out vec4 frag_Color;\n\
+uniform vec3 lightColor;\n\
+uniform mat4 mv_Mat;\n\
+uniform vec3 objectColor;\n\
+uniform vec3 viewPos;\n\
+uniform float ex;\n\
+void main() {\n\
+	//ambient \n\
+    float ambientStrength = 0.1;\n\
+	vec3 ambient = ambientStrength * lightColor;\n\
+	//diffuse\n\
+	vec3 norm = normalize(vert_Normal);\n\
+	vec3 lightDir = normalize(LightPos - frag_Pos);\n\
+	float diff = max(dot(norm, lightDir), 0.0);\n\
+	vec3 diffuse = diff * lightColor;\n\
+	//specular\n\
+	float specularStrength = 0.5f;\n\
+	vec3 viewDir = normalize(-frag_Pos);\n\
+	vec3 reflectDir = reflect(-lightDir, norm);\n\
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), ex);\n\
+	vec3 specular = specularStrength * spec * lightColor;\n\
+	vec3 result = (ambient + diffuse + specular) * objectColor;\n\
+	frag_Color = vec4(result, 1.0);\n\
+}";
+
+	std::vector< glm::vec3 > vertices, normals;
+	std::vector< glm::vec2 > uvs;
+
+	void setupObject() {
+
+
+
+		loadOBJ("Concha.obj", vertices, uvs, normals);
+
+		glGenVertexArrays(1, &objectVao);
+		glBindVertexArray(objectVao);
+		glGenBuffers(2, objectVbo);
+
+		glBindBuffer(GL_ARRAY_BUFFER, objectVbo[0]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3)*vertices.size(), vertices.data(), GL_STATIC_DRAW);
+		glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, objectVbo[1]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3)*normals.size(), normals.data(), GL_STATIC_DRAW);
+		glVertexAttribPointer((GLuint)1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(1);
+
+		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		objectShaders[0] = compileShader(object_vertShader, GL_VERTEX_SHADER, "objectVert");
+		objectShaders[1] = compileShader(object_fragShader, GL_FRAGMENT_SHADER, "objectFrag");
+
+		objectProgram = glCreateProgram();
+		glAttachShader(objectProgram, objectShaders[0]);
+		glAttachShader(objectProgram, objectShaders[1]);
+		glBindAttribLocation(objectProgram, 0, "in_Position");
+		glBindAttribLocation(objectProgram, 1, "in_Normal");
+		linkProgram(objectProgram);
+	}
+	void cleanupObject() {
+		glDeleteBuffers(2, objectVbo);
+		glDeleteVertexArrays(1, &objectVao);
+
+		glDeleteProgram(objectProgram);
+		glDeleteShader(objectShaders[0]);
+		glDeleteShader(objectShaders[1]);
+	}
+	void drawObject(float time) {
+		glBindVertexArray(objectVao);
+		glUseProgram(objectProgram);
+
+		glUniformMatrix4fv(glGetUniformLocation(objectProgram, "mv_Mat"), 1, GL_FALSE, glm::value_ptr(RenderVars::_modelView));
+		glUniformMatrix4fv(glGetUniformLocation(objectProgram, "projection"), 1, GL_FALSE, glm::value_ptr(RenderVars::_MVP));
+
+		glUniformMatrix3fv(glGetUniformLocation(objectProgram, "viewPos"), 1, GL_FALSE, glm::value_ptr(RV::_cameraPoint));
+		//std::cout << RV::_cameraPoint.x <<" "<< RV::_cameraPoint.y <<" "<< RV::_cameraPoint.z << std::endl;
+
+		glm::mat4 obj = glm::translate(objMat, glm::vec3(-4.f, 0.f, -5.f));
+		glUniformMatrix4fv(glGetUniformLocation(objectProgram, "objMat"), 1, GL_FALSE, glm::value_ptr(obj));
+		glUniform3f(glGetUniformLocation(objectProgram, "objectColor"), oC.x, oC.y, oC.z);
+		glUniform3f(glGetUniformLocation(objectProgram, "light"), lPos.x, lPos.y, lPos.z);
+		glUniform3f(glGetUniformLocation(objectProgram, "lightColor"), lColor.x, lColor.y, lColor.z);
+
+		glUniform1f(glGetUniformLocation(objectProgram, "ex"), exponent);
+
+		glDrawArrays(GL_TRIANGLES, 0, normals.size());
+
+		glUseProgram(0);
+		glBindVertexArray(0);
+	}
+}
+
+namespace Object5 {
+	GLuint objectVao;
+	GLuint objectVbo[2];
+	GLuint objectShaders[2];
+	GLuint objectProgram;
+	glm::mat4 objMat = glm::mat4(1.f);
+
+	const char* object_vertShader =
+		"#version 330\n\
+in vec3 in_Position;\n\
+in vec3 in_Normal;\n\
+out vec3 vert_Normal;\n\
+out vec3 frag_Pos;\n\
+out vec3 LightPos;\n\
+uniform vec3 light;\n\
+uniform mat4 objMat;\n\
+uniform mat4 mv_Mat;\n\
+uniform mat4 projection;\n\
+void main() {\n\
+	gl_Position = projection * objMat * vec4(in_Position, 1.0);\n\
+	frag_Pos = vec3(mv_Mat * objMat * vec4(in_Position, 1.0));\n\
+	vert_Normal = mat3(transpose(inverse(mv_Mat * objMat))) *in_Normal;\n\
+	LightPos = vec3(mv_Mat * vec4(light,1.0));\n\
+}";
+	const char* object_fragShader =
+		"#version 330\n\
+in vec3 vert_Normal;\n\
+in vec3 frag_Pos;\n\
+in vec3 LightPos;\n\
+out vec4 frag_Color;\n\
+uniform vec3 lightColor;\n\
+uniform mat4 mv_Mat;\n\
+uniform vec3 objectColor;\n\
+uniform vec3 viewPos;\n\
+uniform float ex;\n\
+void main() {\n\
+	//ambient \n\
+    float ambientStrength = 0.1;\n\
+	vec3 ambient = ambientStrength * lightColor;\n\
+	//diffuse\n\
+	vec3 norm = normalize(vert_Normal);\n\
+	vec3 lightDir = normalize(LightPos - frag_Pos);\n\
+	float diff = max(dot(norm, lightDir), 0.0);\n\
+	vec3 diffuse = diff * lightColor;\n\
+	//specular\n\
+	float specularStrength = 0.5f;\n\
+	vec3 viewDir = normalize(-frag_Pos);\n\
+	vec3 reflectDir = reflect(-lightDir, norm);\n\
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), ex);\n\
+	vec3 specular = specularStrength * spec * lightColor;\n\
+	vec3 result = (ambient + diffuse + specular) * objectColor;\n\
+	frag_Color = vec4(result, 1.0);\n\
+}";
+
+	std::vector< glm::vec3 > vertices, normals;
+	std::vector< glm::vec2 > uvs;
+
+	void setupObject() {
+
+		loadOBJ("Wolf.obj", vertices, uvs, normals);
+
+		glGenVertexArrays(1, &objectVao);
+		glBindVertexArray(objectVao);
+		glGenBuffers(2, objectVbo);
+
+		glBindBuffer(GL_ARRAY_BUFFER, objectVbo[0]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3)*vertices.size(), vertices.data(), GL_STATIC_DRAW);
+		glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, objectVbo[1]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3)*normals.size(), normals.data(), GL_STATIC_DRAW);
+		glVertexAttribPointer((GLuint)1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(1);
+
+		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		objectShaders[0] = compileShader(object_vertShader, GL_VERTEX_SHADER, "objectVert");
+		objectShaders[1] = compileShader(object_fragShader, GL_FRAGMENT_SHADER, "objectFrag");
+
+		objectProgram = glCreateProgram();
+		glAttachShader(objectProgram, objectShaders[0]);
+		glAttachShader(objectProgram, objectShaders[1]);
+		glBindAttribLocation(objectProgram, 0, "in_Position");
+		glBindAttribLocation(objectProgram, 1, "in_Normal");
+		linkProgram(objectProgram);
+	}
+	void cleanupObject() {
+		glDeleteBuffers(2, objectVbo);
+		glDeleteVertexArrays(1, &objectVao);
+
+		glDeleteProgram(objectProgram);
+		glDeleteShader(objectShaders[0]);
+		glDeleteShader(objectShaders[1]);
+	}
+	void drawObject(float time) {
+		glBindVertexArray(objectVao);
+		glUseProgram(objectProgram);
+
+		glUniformMatrix4fv(glGetUniformLocation(objectProgram, "mv_Mat"), 1, GL_FALSE, glm::value_ptr(RenderVars::_modelView));
+		glUniformMatrix4fv(glGetUniformLocation(objectProgram, "projection"), 1, GL_FALSE, glm::value_ptr(RenderVars::_MVP));
+
+		glUniformMatrix3fv(glGetUniformLocation(objectProgram, "viewPos"), 1, GL_FALSE, glm::value_ptr(RV::_cameraPoint));
+		//std::cout << RV::_cameraPoint.x <<" "<< RV::_cameraPoint.y <<" "<< RV::_cameraPoint.z << std::endl;
+
+		glm::mat4 obj = glm::translate(objMat, glm::vec3(0.f, 0.f, 0.f));
+		glUniformMatrix4fv(glGetUniformLocation(objectProgram, "objMat"), 1, GL_FALSE, glm::value_ptr(obj));
+		glUniform3f(glGetUniformLocation(objectProgram, "objectColor"), oC.x, oC.y, oC.z);
+		glUniform3f(glGetUniformLocation(objectProgram, "light"), lPos.x, lPos.y, lPos.z);
+		glUniform3f(glGetUniformLocation(objectProgram, "lightColor"), lColor.x, lColor.y, lColor.z);
+
+		glUniform1f(glGetUniformLocation(objectProgram, "ex"), exponent);
+
+		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+
+		glUseProgram(0);
+		glBindVertexArray(0);
+	}
+}
+
 
 
 
@@ -722,23 +1212,16 @@ void GLinit(int width, int height) {
 
 	Cube::setupCube();
 
-	Object::setupObject();
+	Object1::setupObject();
 
+	Object2::setupObject();
 
+	Object3::setupObject();
 
+	Object4::setupObject();
 
+	Object5::setupObject();
 
-	/////////////////////////////////////////////////////TODO
-
-	// Do your init code here
-
-	// ...
-
-	// ...
-
-	// ...
-
-	/////////////////////////////////////////////////////////
 
 	glGenVertexArrays(1, &myVao);
 
@@ -754,7 +1237,15 @@ void GLcleanup() {
 
 	Cube::cleanupCube();
 
-	Object::cleanupObject();
+	Object1::cleanupObject();
+
+	Object2::cleanupObject();
+
+	Object3::cleanupObject();
+
+	Object4::cleanupObject();
+
+	Object5::cleanupObject();
 
 	/////////////////////////////////////////////////////TODO
 
@@ -818,7 +1309,15 @@ void GLrender(float dt) {
 
 	//Cube::drawCube(accum);
 
-	Object::drawObject(accum);
+	Object1::drawObject(accum);
+
+	Object2::drawObject(accum);
+
+	Object3::drawObject(accum);
+
+	Object4::drawObject(accum);
+
+	Object5::drawObject(accum);
 
 	/////////////////////////////////////////////////////TODO
 
