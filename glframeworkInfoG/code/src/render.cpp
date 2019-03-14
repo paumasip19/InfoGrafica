@@ -7,12 +7,18 @@
 #include <vector>
 #include <glm\gtc\type_ptr.hpp>
 #include <glm\gtc\matrix_transform.hpp>
+#include <iostream>
 
 
 #include <imgui\imgui.h>
 #include <imgui\imgui_impl_sdl_gl3.h>
 
 #include "GL_framework.h"
+
+bool dolly = false;
+float modifiedFOV = 0;
+
+float renderW, renderH;
 
 ///////// fw decl
 namespace ImGui {
@@ -51,6 +57,8 @@ void GLResize(int width, int height) {
 	glViewport(0, 0, width, height);
 	if(height != 0) RV::_projection = glm::perspective(RV::FOV, (float)width / (float)height, RV::zNear, RV::zFar);
 	else RV::_projection = glm::perspective(RV::FOV, 0.f, RV::zNear, RV::zFar);
+	renderW = (float)width;
+	renderH = (float)height;
 }
 
 void GLmousecb(MouseEvent ev) {
@@ -192,9 +200,13 @@ bool loadOBJ(const char * path,
 }
 
 
-void inverseDollyEffect()
+void inverseDollyEffect(float dt)
 {
-	//RV::_modelView.tr
+	/*glm::mat4 center = glm::mat4(0.f);
+	RV::_modelView = glm::translate(center, glm::vec3(0.f, 0.f, 0.f));*/
+	modifiedFOV = glm::radians(glm::abs(sin(dt)) * 60);
+	std::cout << modifiedFOV << std::endl;
+
 }
 
 ////////////////////////////////////////////////// AXIS
@@ -689,7 +701,11 @@ void GLinit(int width, int height) {
 
 
 
-	RV::_projection = glm::perspective(RV::FOV, (float)width / (float)height, RV::zNear, RV::zFar);
+	RV::_projection = glm::perspective(glm::radians(40.f), (float)width / (float)height, RV::zNear, RV::zFar);
+	
+	renderW = (float)width;
+	renderH = (float)height;
+
 
 
 
@@ -754,17 +770,36 @@ void GLrender(float dt) {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
+	static float accum = 0.f;
+	accum += dt;
+	if (accum > glm::two_pi<float>())
+	{
+		accum = 0.f;
+	}
 
 	RV::_modelView = glm::mat4(1.f);
 
-	RV::_modelView = glm::translate(RV::_modelView, glm::vec3(RV::panv[0], RV::panv[1], RV::panv[2]));
+	if (!dolly)
+	{
+		RV::_projection = glm::perspective(RV::FOV, renderW / renderH, RV::zNear, RV::zFar);
 
-	RV::_modelView = glm::rotate(RV::_modelView, RV::rota[1], glm::vec3(1.f, 0.f, 0.f));
+		RV::_modelView = glm::translate(RV::_modelView, glm::vec3(RV::panv[0], RV::panv[1], RV::panv[2]));
 
-	RV::_modelView = glm::rotate(RV::_modelView, RV::rota[0], glm::vec3(0.f, 1.f, 0.f));
+		RV::_modelView = glm::rotate(RV::_modelView, RV::rota[1], glm::vec3(1.f, 0.f, 0.f));
 
-	RV::_MVP = RV::_projection * RV::_modelView;
+		RV::_modelView = glm::rotate(RV::_modelView, RV::rota[0], glm::vec3(0.f, 1.f, 0.f));
+
+		RV::_MVP = RV::_projection * RV::_modelView;
+	}
+	else
+	{
+		inverseDollyEffect(accum);
+		RV::_projection = glm::perspective(modifiedFOV, renderW / renderH, RV::zNear, RV::zFar);
+		RV::_MVP = RV::_projection * RV::_modelView;
+	}
+
+	
+
 
 	RV::_inv_modelview = glm::inverse(RV::_modelView);
 	glm::vec4 mat = {0, 0, 0, 1};
@@ -773,12 +808,7 @@ void GLrender(float dt) {
 	   
 	Axis::drawAxis();
 
-	static float accum = 0.f;
-	accum += dt;
-	if (accum > glm::two_pi<float>())
-	{
-		accum = 0.f;
-	}
+	
 
 	//Cube::drawCube(accum);
 
@@ -832,9 +862,14 @@ void GUI() {
 		ImGui::InputFloat3("Light Position", &lPos.x, lPos.y, lPos.z);
 		ImGui::InputFloat3("Light Color", &lColor.x, lColor.y, lColor.z);
 		ImGui::InputFloat("Exponent Light", &exponent);
+
 		if (ImGui::Button("Dolly Effect"))
 		{
-			inverseDollyEffect();
+			dolly = true;
+		}
+		if (ImGui::Button("Normal Camera"))
+		{
+			dolly = false;
 		}
 		
 
