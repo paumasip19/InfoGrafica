@@ -191,6 +191,12 @@ bool loadOBJ(const char * path,
 	fclose(file);
 }
 
+
+void inverseDollyEffect()
+{
+	//RV::_modelView.tr
+}
+
 ////////////////////////////////////////////////// AXIS
 namespace Axis {
 GLuint AxisVao;
@@ -453,6 +459,11 @@ void drawCube(float time) {
 }
 
 
+glm::vec3 oC = { 0, 0, 0 };
+glm::vec3 lPos = { 0, 0, 0 };
+glm::vec3 lColor = { 0, 0, 0 };
+float exponent = 32;
+
 namespace Object {
 	GLuint objectVao;
 	GLuint objectVbo[2];
@@ -471,8 +482,8 @@ uniform mat4 mv_Mat;\n\
 uniform mat4 mvpMat;\n\
 void main() {\n\
 	gl_Position = mvpMat * objMat * vec4(in_Position, 1.0);\n\
-	//frag_Pos = vec3(objMat * vec4(in_Position, 1.0));\n\
-	vert_Normal = mv_Mat * objMat * vec4(in_Normal, 0.0);\n\
+	frag_Pos = vec3(objMat * vec4(in_Position, 1.0));\n\
+	vert_Normal = objMat * vec4(in_Normal, 0.0);\n\
 }";
 	const char* object_fragShader =
 		"#version 330\n\
@@ -483,6 +494,8 @@ uniform vec3 lightPos;\n\
 uniform vec3 lightColor;\n\
 uniform mat4 mv_Mat;\n\
 uniform vec3 objectColor;\n\
+uniform vec3 viewPos;\n\
+uniform float ex;\n\
 void main() {\n\
     float ambientStrength = 0.1;\n\
 	vec3 ambient = ambientStrength * lightColor;\n\
@@ -490,14 +503,21 @@ void main() {\n\
 	vec3 lightDir = normalize(lightPos - frag_Pos);\n\
 	float diff = max(dot(norm, lightDir), 0.0);\n\
 	vec3 diffuse = diff * lightColor;\n\
-	vec3 result = (ambient + diffuse) * objectColor;\n\
+	float specularStrength = 0.5f;\n\
+	vec3 viewDir = normalize(viewPos - frag_Pos);\n\
+	vec3 reflectDir = reflect(lightDir, norm);\n\
+	float spec = pow(dot(viewDir, reflectDir), ex);\n\
+	vec3 specular = specularStrength * spec * lightColor;\n\
+	vec3 result = (ambient + diffuse + specular) * objectColor;\n\
 	frag_Color = vec4(result, 1.0);\n\
 }";
 
+	std::vector< glm::vec3 > vertices, normals;
+	std::vector< glm::vec2 > uvs;
+
 	void setupObject() {
 
-		std::vector< glm::vec3 > vertices, normals;
-		std::vector< glm::vec2 > uvs;
+		
 
 		loadOBJ("cube.obj", vertices, uvs, normals);
 		
@@ -544,14 +564,18 @@ void main() {\n\
 		glUniformMatrix4fv(glGetUniformLocation(objectProgram, "mv_Mat"), 1, GL_FALSE, glm::value_ptr(RenderVars::_modelView));
 		glUniformMatrix4fv(glGetUniformLocation(objectProgram, "mvpMat"), 1, GL_FALSE, glm::value_ptr(RenderVars::_MVP));
 		
+		glUniformMatrix3fv(glGetUniformLocation(objectProgram, "viewPos"), 1, GL_FALSE, glm::value_ptr(RV::_cameraPoint));
+		
 		glm::mat4 obj = glm::translate(objMat, glm::vec3(0.f, 0.f, 0.f));
 		glUniformMatrix4fv(glGetUniformLocation(objectProgram, "objMat"), 1, GL_FALSE, glm::value_ptr(obj));
-		glUniform3f(glGetUniformLocation(objectProgram, "objectColor"), 1.f, 0.f, 0.f);
+		glUniform3f(glGetUniformLocation(objectProgram, "objectColor"), oC.x, oC.y, oC.z);
 		
-		glUniform3f(glGetUniformLocation(objectProgram, "lightColor"), 1.f, 0.f, 0.f);
-		glUniform3f(glGetUniformLocation(objectProgram, "lightPos"), 3.f, 3.f, 3.f);
+		glUniform3f(glGetUniformLocation(objectProgram, "lightColor"), lColor.x, lColor.y, lColor.z);
+		glUniform3f(glGetUniformLocation(objectProgram, "lightPos"), lPos.x, lPos.y, lPos.z);
 
-		glDrawArrays(GL_TRIANGLES, 0, 12*3);
+		glUniform1f(glGetUniformLocation(objectProgram, "ex"), exponent);
+
+		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 		
 		glUseProgram(0);
 		glBindVertexArray(0);
@@ -669,6 +693,7 @@ void GLinit(int width, int height) {
 
 
 
+
 	// Setup shaders & geometry
 
 	Axis::setupAxis();
@@ -740,6 +765,11 @@ void GLrender(float dt) {
 	RV::_modelView = glm::rotate(RV::_modelView, RV::rota[0], glm::vec3(0.f, 1.f, 0.f));
 
 	RV::_MVP = RV::_projection * RV::_modelView;
+
+	RV::_inv_modelview = glm::inverse(RV::_modelView);
+	glm::vec4 mat = {0, 0, 0, 1};
+
+	RV::_cameraPoint = RV::_inv_modelview * mat;
 	   
 	Axis::drawAxis();
 
@@ -798,7 +828,14 @@ void GUI() {
 
 		/////////////////////////////////////////////////////TODO
 		// Do your GUI code here....
-		
+		ImGui::InputFloat3("Object Color", &oC.x, oC.y, oC.z);
+		ImGui::InputFloat3("Light Position", &lPos.x, lPos.y, lPos.z);
+		ImGui::InputFloat3("Light Color", &lColor.x, lColor.y, lColor.z);
+		ImGui::InputFloat("Exponent Light", &exponent);
+		if (ImGui::Button("Dolly Effect"))
+		{
+			inverseDollyEffect();
+		}
 		
 
 		/////////////////////////////////////////////////////////

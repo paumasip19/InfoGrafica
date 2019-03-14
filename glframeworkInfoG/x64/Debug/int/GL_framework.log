@@ -1,5 +1,36 @@
 ﻿  render.cpp
-c:\users\pauma\source\repos\glframeworkinfog\code\src\render.cpp(192): warning C4715: 'loadOBJ': not all control paths return a value
-  GL_framework.vcxproj -> C:\Users\pauma\source\repos\glframeworkInfoG\x64\Debug\GL_framework.exe
+c:\users\pauma\source\repos\infografica\glframeworkinfog\code\src\render.cpp(578): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+c:\users\pauma\source\repos\infografica\glframeworkinfog\code\src\render.cpp(831): warning C4244: 'argument': conversion from 'T' to 'ImGuiInputTextFlags', possible loss of data
+          with
+          [
+              T=float
+          ]
+c:\users\pauma\source\repos\infografica\glframeworkinfog\code\src\render.cpp(831): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
+          with
+          [
+              T=float
+          ]
+c:\users\pauma\source\repos\infografica\glframeworkinfog\code\src\render.cpp(832): warning C4244: 'argument': conversion from 'T' to 'ImGuiInputTextFlags', possible loss of data
+          with
+          [
+              T=float
+          ]
+c:\users\pauma\source\repos\infografica\glframeworkinfog\code\src\render.cpp(832): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
+          with
+          [
+              T=float
+          ]
+c:\users\pauma\source\repos\infografica\glframeworkinfog\code\src\render.cpp(833): warning C4244: 'argument': conversion from 'T' to 'ImGuiInputTextFlags', possible loss of data
+          with
+          [
+              T=float
+          ]
+c:\users\pauma\source\repos\infografica\glframeworkinfog\code\src\render.cpp(833): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
+          with
+          [
+              T=float
+          ]
+c:\users\pauma\source\repos\infografica\glframeworkinfog\code\src\render.cpp(192): warning C4715: 'loadOBJ': not all control paths return a value
+  GL_framework.vcxproj -> C:\Users\pauma\source\repos\InfoGrafica\glframeworkInfoG\x64\Debug\GL_framework.exe
   0 File(s) copied
   0 File(s) copied
