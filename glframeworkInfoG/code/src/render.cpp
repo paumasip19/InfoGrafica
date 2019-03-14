@@ -262,7 +262,7 @@ void setupAxis() {
 
 	glBindBuffer(GL_ARRAY_BUFFER, AxisVbo[0]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 24, AxisVerts, GL_STATIC_DRAW);
-	glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, AxisVbo[1]);
@@ -471,9 +471,9 @@ void drawCube(float time) {
 }
 
 
-glm::vec3 oC = { 0, 0, 0 };
-glm::vec3 lPos = { 0, 0, 0 };
-glm::vec3 lColor = { 0, 0, 0 };
+glm::vec3 oC = { 0.5, 0.5, 0.5 };
+glm::vec3 lPos = { 10, 15, 0 };
+glm::vec3 lColor = { 1, 1, 1 };
 float exponent = 32;
 
 namespace Object {
@@ -487,38 +487,44 @@ namespace Object {
 		"#version 330\n\
 in vec3 in_Position;\n\
 in vec3 in_Normal;\n\
-out vec4 vert_Normal;\n\
+out vec3 vert_Normal;\n\
 out vec3 frag_Pos;\n\
+out vec3 LightPos;\n\
+uniform vec3 light;\n\
 uniform mat4 objMat;\n\
 uniform mat4 mv_Mat;\n\
-uniform mat4 mvpMat;\n\
+uniform mat4 projection;\n\
 void main() {\n\
-	gl_Position = mvpMat * objMat * vec4(in_Position, 1.0);\n\
-	frag_Pos = vec3(objMat * vec4(in_Position, 1.0));\n\
-	vert_Normal = objMat * vec4(in_Normal, 0.0);\n\
+	gl_Position = projection * objMat * vec4(in_Position, 1.0);\n\
+	frag_Pos = vec3(mv_Mat * objMat * vec4(in_Position, 1.0));\n\
+	vert_Normal = mat3(transpose(inverse(mv_Mat * objMat))) *in_Normal;\n\
+	LightPos = vec3(mv_Mat * vec4(light,1.0));\n\
 }";
 	const char* object_fragShader =
 		"#version 330\n\
-in vec4 vert_Normal;\n\
+in vec3 vert_Normal;\n\
 in vec3 frag_Pos;\n\
+in vec3 LightPos;\n\
 out vec4 frag_Color;\n\
-uniform vec3 lightPos;\n\
 uniform vec3 lightColor;\n\
 uniform mat4 mv_Mat;\n\
 uniform vec3 objectColor;\n\
 uniform vec3 viewPos;\n\
 uniform float ex;\n\
 void main() {\n\
+	//ambient \n\
     float ambientStrength = 0.1;\n\
 	vec3 ambient = ambientStrength * lightColor;\n\
-	vec3 norm = normalize(vert_Normal.xyz);\n\
-	vec3 lightDir = normalize(lightPos - frag_Pos);\n\
+	//diffuse\n\
+	vec3 norm = normalize(vert_Normal);\n\
+	vec3 lightDir = normalize(LightPos - frag_Pos);\n\
 	float diff = max(dot(norm, lightDir), 0.0);\n\
 	vec3 diffuse = diff * lightColor;\n\
+	//specular\n\
 	float specularStrength = 0.5f;\n\
-	vec3 viewDir = normalize(viewPos - frag_Pos);\n\
-	vec3 reflectDir = reflect(lightDir, norm);\n\
-	float spec = pow(dot(viewDir, reflectDir), ex);\n\
+	vec3 viewDir = normalize(-frag_Pos);\n\
+	vec3 reflectDir = reflect(-lightDir, norm);\n\
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), ex);\n\
 	vec3 specular = specularStrength * spec * lightColor;\n\
 	vec3 result = (ambient + diffuse + specular) * objectColor;\n\
 	frag_Color = vec4(result, 1.0);\n\
@@ -531,7 +537,7 @@ void main() {\n\
 
 		
 
-		loadOBJ("cube.obj", vertices, uvs, normals);
+		loadOBJ("pistola1.obj", vertices, uvs, normals);
 		
 		glGenVertexArrays(1, &objectVao);
 		glBindVertexArray(objectVao);
@@ -574,16 +580,16 @@ void main() {\n\
 		glUseProgram(objectProgram);
 		
 		glUniformMatrix4fv(glGetUniformLocation(objectProgram, "mv_Mat"), 1, GL_FALSE, glm::value_ptr(RenderVars::_modelView));
-		glUniformMatrix4fv(glGetUniformLocation(objectProgram, "mvpMat"), 1, GL_FALSE, glm::value_ptr(RenderVars::_MVP));
+		glUniformMatrix4fv(glGetUniformLocation(objectProgram, "projection"), 1, GL_FALSE, glm::value_ptr(RenderVars::_MVP));
 		
 		glUniformMatrix3fv(glGetUniformLocation(objectProgram, "viewPos"), 1, GL_FALSE, glm::value_ptr(RV::_cameraPoint));
+		//std::cout << RV::_cameraPoint.x <<" "<< RV::_cameraPoint.y <<" "<< RV::_cameraPoint.z << std::endl;
 		
 		glm::mat4 obj = glm::translate(objMat, glm::vec3(0.f, 0.f, 0.f));
 		glUniformMatrix4fv(glGetUniformLocation(objectProgram, "objMat"), 1, GL_FALSE, glm::value_ptr(obj));
 		glUniform3f(glGetUniformLocation(objectProgram, "objectColor"), oC.x, oC.y, oC.z);
-		
+		glUniform3f(glGetUniformLocation(objectProgram, "light"), lPos.x, lPos.y, lPos.z);
 		glUniform3f(glGetUniformLocation(objectProgram, "lightColor"), lColor.x, lColor.y, lColor.z);
-		glUniform3f(glGetUniformLocation(objectProgram, "lightPos"), lPos.x, lPos.y, lPos.z);
 
 		glUniform1f(glGetUniformLocation(objectProgram, "ex"), exponent);
 
