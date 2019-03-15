@@ -461,10 +461,12 @@ void drawCube(float time) {
 }
 
 
-glm::vec3 oC = { 0.5, 0.5, 0.5 };
-glm::vec3 lPos = { 10, 15, 0 };
-glm::vec3 lColor = { 1, 1, 1 };
-float exponent = 32;
+glm::vec3 oC = { 0.5f, 0.5f, 0.5f };
+glm::vec3 lPos = { 10.f, 15.f, 0.f };
+glm::vec3 lColor = { 1.f, 1.f, 1.f };
+float exponent = 32.f;
+float ambientStrength = 0.1f;
+float specularStrength = 0.5f;
 
 namespace Object1 {
 	GLuint objectVao;
@@ -501,9 +503,10 @@ uniform mat4 mv_Mat;\n\
 uniform vec3 objectColor;\n\
 uniform vec3 viewPos;\n\
 uniform float ex;\n\
+uniform float ambientStrength;\n\
+uniform float specularStrength;\n\
 void main() {\n\
 	//ambient \n\
-    float ambientStrength = 0.1;\n\
 	vec3 ambient = ambientStrength * lightColor;\n\
 	//diffuse\n\
 	vec3 norm = normalize(vert_Normal);\n\
@@ -511,7 +514,6 @@ void main() {\n\
 	float diff = max(dot(norm, lightDir), 0.0);\n\
 	vec3 diffuse = diff * lightColor;\n\
 	//specular\n\
-	float specularStrength = 0.5f;\n\
 	vec3 viewDir = normalize(-frag_Pos);\n\
 	vec3 reflectDir = reflect(-lightDir, norm);\n\
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), ex);\n\
@@ -580,6 +582,8 @@ void main() {\n\
 		glUniform3f(glGetUniformLocation(objectProgram, "lightColor"), lColor.x, lColor.y, lColor.z);
 
 		glUniform1f(glGetUniformLocation(objectProgram, "ex"), exponent);
+		glUniform1f(glGetUniformLocation(objectProgram, "ambientStrength"), ambientStrength);
+		glUniform1f(glGetUniformLocation(objectProgram, "specularStrength"), specularStrength);
 
 		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 		
@@ -623,9 +627,10 @@ uniform mat4 mv_Mat;\n\
 uniform vec3 objectColor;\n\
 uniform vec3 viewPos;\n\
 uniform float ex;\n\
+uniform float ambientStrength;\n\
+uniform float specularStrength;\n\
 void main() {\n\
 	//ambient \n\
-    float ambientStrength = 0.1;\n\
 	vec3 ambient = ambientStrength * lightColor;\n\
 	//diffuse\n\
 	vec3 norm = normalize(vert_Normal);\n\
@@ -633,7 +638,6 @@ void main() {\n\
 	float diff = max(dot(norm, lightDir), 0.0);\n\
 	vec3 diffuse = diff * lightColor;\n\
 	//specular\n\
-	float specularStrength = 0.5f;\n\
 	vec3 viewDir = normalize(-frag_Pos);\n\
 	vec3 reflectDir = reflect(-lightDir, norm);\n\
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), ex);\n\
@@ -704,6 +708,8 @@ void main() {\n\
 		glUniform3f(glGetUniformLocation(objectProgram, "lightColor"), lColor.x, lColor.y, lColor.z);
 
 		glUniform1f(glGetUniformLocation(objectProgram, "ex"), exponent);
+		glUniform1f(glGetUniformLocation(objectProgram, "ambientStrength"), ambientStrength);
+		glUniform1f(glGetUniformLocation(objectProgram, "specularStrength"), specularStrength);
 
 		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 
@@ -747,9 +753,10 @@ uniform mat4 mv_Mat;\n\
 uniform vec3 objectColor;\n\
 uniform vec3 viewPos;\n\
 uniform float ex;\n\
+uniform float ambientStrength;\n\
+uniform float specularStrength;\n\
 void main() {\n\
 	//ambient \n\
-    float ambientStrength = 0.1;\n\
 	vec3 ambient = ambientStrength * lightColor;\n\
 	//diffuse\n\
 	vec3 norm = normalize(vert_Normal);\n\
@@ -757,7 +764,6 @@ void main() {\n\
 	float diff = max(dot(norm, lightDir), 0.0);\n\
 	vec3 diffuse = diff * lightColor;\n\
 	//specular\n\
-	float specularStrength = 0.5f;\n\
 	vec3 viewDir = normalize(-frag_Pos);\n\
 	vec3 reflectDir = reflect(-lightDir, norm);\n\
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), ex);\n\
@@ -826,6 +832,8 @@ void main() {\n\
 		glUniform3f(glGetUniformLocation(objectProgram, "lightColor"), lColor.x, lColor.y, lColor.z);
 
 		glUniform1f(glGetUniformLocation(objectProgram, "ex"), exponent);
+		glUniform1f(glGetUniformLocation(objectProgram, "ambientStrength"), ambientStrength);
+		glUniform1f(glGetUniformLocation(objectProgram, "specularStrength"), specularStrength);
 
 		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 
@@ -869,9 +877,10 @@ uniform mat4 mv_Mat;\n\
 uniform vec3 objectColor;\n\
 uniform vec3 viewPos;\n\
 uniform float ex;\n\
+uniform float ambientStrength;\n\
+uniform float specularStrength;\n\
 void main() {\n\
 	//ambient \n\
-    float ambientStrength = 0.1;\n\
 	vec3 ambient = ambientStrength * lightColor;\n\
 	//diffuse\n\
 	vec3 norm = normalize(vert_Normal);\n\
@@ -879,7 +888,6 @@ void main() {\n\
 	float diff = max(dot(norm, lightDir), 0.0);\n\
 	vec3 diffuse = diff * lightColor;\n\
 	//specular\n\
-	float specularStrength = 0.5f;\n\
 	vec3 viewDir = normalize(-frag_Pos);\n\
 	vec3 reflectDir = reflect(-lightDir, norm);\n\
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), ex);\n\
@@ -950,6 +958,8 @@ void main() {\n\
 		glUniform3f(glGetUniformLocation(objectProgram, "lightColor"), lColor.x, lColor.y, lColor.z);
 
 		glUniform1f(glGetUniformLocation(objectProgram, "ex"), exponent);
+		glUniform1f(glGetUniformLocation(objectProgram, "ambientStrength"), ambientStrength);
+		glUniform1f(glGetUniformLocation(objectProgram, "specularStrength"), specularStrength);
 
 		glDrawArrays(GL_TRIANGLES, 0, normals.size());
 
@@ -993,9 +1003,10 @@ uniform mat4 mv_Mat;\n\
 uniform vec3 objectColor;\n\
 uniform vec3 viewPos;\n\
 uniform float ex;\n\
+uniform float ambientStrength;\n\
+uniform float specularStrength;\n\
 void main() {\n\
 	//ambient \n\
-    float ambientStrength = 0.1;\n\
 	vec3 ambient = ambientStrength * lightColor;\n\
 	//diffuse\n\
 	vec3 norm = normalize(vert_Normal);\n\
@@ -1003,7 +1014,6 @@ void main() {\n\
 	float diff = max(dot(norm, lightDir), 0.0);\n\
 	vec3 diffuse = diff * lightColor;\n\
 	//specular\n\
-	float specularStrength = 0.5f;\n\
 	vec3 viewDir = normalize(-frag_Pos);\n\
 	vec3 reflectDir = reflect(-lightDir, norm);\n\
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), ex);\n\
@@ -1072,6 +1082,8 @@ void main() {\n\
 		glUniform3f(glGetUniformLocation(objectProgram, "lightColor"), lColor.x, lColor.y, lColor.z);
 
 		glUniform1f(glGetUniformLocation(objectProgram, "ex"), exponent);
+		glUniform1f(glGetUniformLocation(objectProgram, "ambientStrength"), ambientStrength);
+		glUniform1f(glGetUniformLocation(objectProgram, "specularStrength"), specularStrength);
 
 		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 
@@ -1298,7 +1310,7 @@ void GLrender(float dt) {
 
 	RV::_cameraPoint = RV::_inv_modelview * mat;
 	   
-	Axis::drawAxis();
+	//Axis::drawAxis();
 
 	
 
@@ -1358,10 +1370,12 @@ void GUI() {
 
 		/////////////////////////////////////////////////////TODO
 		// Do your GUI code here....
-		ImGui::InputFloat3("Object Color", &oC.x, oC.y, oC.z);
-		ImGui::InputFloat3("Light Position", &lPos.x, lPos.y, lPos.z);
-		ImGui::InputFloat3("Light Color", &lColor.x, lColor.y, lColor.z);
-		ImGui::InputFloat("Exponent Light", &exponent);
+		ImGui::DragFloat3("Object Color", &oC.x, 0.05f, 0.f, 1.f);
+		ImGui::DragFloat3("Light Position", &lPos.x, 0.05f, -50.f, 50.f);
+		ImGui::DragFloat3("Light Color", &lColor.x, 0.05f, 0, 1 );
+		ImGui::DragFloat("Ambient Strength", &ambientStrength, 0.05f, 0.f, 1.f);
+		ImGui::DragFloat("Specular Strength", &specularStrength, 0.05f, 0.f, 1.f);
+		ImGui::DragFloat("Exponent Light", &exponent, 8.f, 1, 256);
 
 		if (ImGui::Button("Dolly Effect"))
 		{
