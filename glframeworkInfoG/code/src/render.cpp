@@ -199,19 +199,6 @@ bool loadOBJ(const char * path,
 	fclose(file);
 }
 
-
-void inverseDollyEffect(float dt)
-{
-	/*glm::mat4 center = glm::mat4(0.f);
-	RV::_modelView = glm::translate(center, glm::vec3(0.f, 0.f, 0.f));*/
-	
-	//modifiedFOV = glm::radians(glm::abs(sin(dt)) * 60);
-	//modifiedFOV = glm::radians(90.0f);
-
-	
-
-}
-
 ////////////////////////////////////////////////// AXIS
 namespace Axis {
 GLuint AxisVao;
@@ -784,7 +771,7 @@ void main() {\n\
 
 	void setupObject() {
 
-		loadOBJ("hammer1.obj", vertices, uvs, normals);
+		loadOBJ("wolf.obj", vertices, uvs, normals);
 
 		glGenVertexArrays(1, &objectVao);
 		glBindVertexArray(objectVao);
@@ -1094,8 +1081,6 @@ void main() {\n\
 }
 
 
-
-
 static const GLchar * vertex_shader_source[] =
 {
 			  "#version 330 \n\
@@ -1112,9 +1097,7 @@ static const GLchar * vertex_shader_source[] =
 };
 
 
-
 static const GLchar * fragment_shader_source[] =
-
 {
 
 			  "#version 330\n\
@@ -1292,18 +1275,16 @@ void GLrender(float dt) {
 		RV::_MVP = RV::_projection * RV::_modelView;
 
 	}
-	else
+	else                  //DOLLY EFFECT
 	{
-		inverseDollyEffect(accum); //ELIMINAR ¿?
-		
 		RV::_projection = glm::perspective(modifiedFOV, renderW / renderH, RV::zNear, RV::zFar);
 		RV::_MVP = RV::_projection * RV::_modelView;
 
-		float zPos = -20.f + 10 * sin(accum);
+		float zInit = -15.f;
+		float zPos = zInit + 10 * sin(accum);
 		RV::_MVP = glm::translate(RV::_MVP, glm::vec3(0.f, 0.f, zPos));
 
-		modifiedFOV = 2 * (glm::atan((tan(RV::FOV / 2)* 20.f) / -zPos));
-		//std::cout << "FOV: " << glm::degrees(modifiedFOV) << std::endl;	
+		modifiedFOV = 2 * (glm::atan((tan(RV::FOV / 2)* -zInit) / -zPos));
 		
 	}
 
