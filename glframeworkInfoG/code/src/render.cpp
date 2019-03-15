@@ -575,7 +575,7 @@ void main() {\n\
 		glUniformMatrix3fv(glGetUniformLocation(objectProgram, "viewPos"), 1, GL_FALSE, glm::value_ptr(RV::_cameraPoint));
 		//std::cout << RV::_cameraPoint.x <<" "<< RV::_cameraPoint.y <<" "<< RV::_cameraPoint.z << std::endl;
 		
-		glm::mat4 obj = glm::translate(objMat, glm::vec3(-8.f, 0.f, -15.f));
+		glm::mat4 obj = glm::translate(objMat, glm::vec3(-1.f, 0.f, -15.f));
 		glUniformMatrix4fv(glGetUniformLocation(objectProgram, "objMat"), 1, GL_FALSE, glm::value_ptr(obj));
 		glUniform3f(glGetUniformLocation(objectProgram, "objectColor"), oC.x, oC.y, oC.z);
 		glUniform3f(glGetUniformLocation(objectProgram, "light"), lPos.x, lPos.y, lPos.z);
@@ -825,7 +825,7 @@ void main() {\n\
 		glUniformMatrix3fv(glGetUniformLocation(objectProgram, "viewPos"), 1, GL_FALSE, glm::value_ptr(RV::_cameraPoint));
 		//std::cout << RV::_cameraPoint.x <<" "<< RV::_cameraPoint.y <<" "<< RV::_cameraPoint.z << std::endl;
 
-		glm::mat4 obj = glm::translate(objMat, glm::vec3(4.f, 0.f, -5.f));
+		glm::mat4 obj = glm::translate(objMat, glm::vec3(7.f, 0.f, -8.f));
 		glUniformMatrix4fv(glGetUniformLocation(objectProgram, "objMat"), 1, GL_FALSE, glm::value_ptr(obj));
 		glUniform3f(glGetUniformLocation(objectProgram, "objectColor"), oC.x, oC.y, oC.z);
 		glUniform3f(glGetUniformLocation(objectProgram, "light"), lPos.x, lPos.y, lPos.z);
@@ -951,7 +951,7 @@ void main() {\n\
 		glUniformMatrix3fv(glGetUniformLocation(objectProgram, "viewPos"), 1, GL_FALSE, glm::value_ptr(RV::_cameraPoint));
 		//std::cout << RV::_cameraPoint.x <<" "<< RV::_cameraPoint.y <<" "<< RV::_cameraPoint.z << std::endl;
 
-		glm::mat4 obj = glm::translate(objMat, glm::vec3(-4.f, 0.f, -5.f));
+		glm::mat4 obj = glm::translate(objMat, glm::vec3(-4.f, 0.f, -20.f));
 		glUniformMatrix4fv(glGetUniformLocation(objectProgram, "objMat"), 1, GL_FALSE, glm::value_ptr(obj));
 		glUniform3f(glGetUniformLocation(objectProgram, "objectColor"), oC.x, oC.y, oC.z);
 		glUniform3f(glGetUniformLocation(objectProgram, "light"), lPos.x, lPos.y, lPos.z);
@@ -968,7 +968,7 @@ void main() {\n\
 	}
 }
 
-namespace Object5 {
+namespace MainCharacter {
 	GLuint objectVao;
 	GLuint objectVbo[2];
 	GLuint objectShaders[2];
@@ -1218,7 +1218,7 @@ void GLinit(int width, int height) {
 
 	Object4::setupObject();
 
-	Object5::setupObject();
+	MainCharacter::setupObject();
 
 
 	glGenVertexArrays(1, &myVao);
@@ -1243,7 +1243,7 @@ void GLcleanup() {
 
 	Object4::cleanupObject();
 
-	Object5::cleanupObject();
+	MainCharacter::cleanupObject();
 
 	/////////////////////////////////////////////////////TODO
 
@@ -1324,7 +1324,7 @@ void GLrender(float dt) {
 
 	Object4::drawObject(accum);
 
-	Object5::drawObject(accum);
+	MainCharacter::drawObject(accum);
 
 	/////////////////////////////////////////////////////TODO
 
