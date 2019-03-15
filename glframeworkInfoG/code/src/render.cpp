@@ -16,7 +16,7 @@
 #include "GL_framework.h"
 
 bool dolly = false;
-float modifiedFOV = 0;
+float modifiedFOV = 65.f;
 
 float renderW, renderH;
 
@@ -204,8 +204,11 @@ void inverseDollyEffect(float dt)
 {
 	/*glm::mat4 center = glm::mat4(0.f);
 	RV::_modelView = glm::translate(center, glm::vec3(0.f, 0.f, 0.f));*/
-	modifiedFOV = glm::radians(glm::abs(sin(dt)) * 60);
-	std::cout << modifiedFOV << std::endl;
+	
+	//modifiedFOV = glm::radians(glm::abs(sin(dt)) * 60);
+	//modifiedFOV = glm::radians(90.0f);
+
+	
 
 }
 
@@ -1027,7 +1030,7 @@ void main() {\n\
 
 	void setupObject() {
 
-		loadOBJ("Wolf.obj", vertices, uvs, normals);
+		loadOBJ("cube.obj", vertices, uvs, normals);
 
 		glGenVertexArrays(1, &objectVao);
 		glBindVertexArray(objectVao);
@@ -1287,13 +1290,24 @@ void GLrender(float dt) {
 		RV::_modelView = glm::rotate(RV::_modelView, RV::rota[0], glm::vec3(0.f, 1.f, 0.f));
 
 		RV::_MVP = RV::_projection * RV::_modelView;
+
 	}
 	else
 	{
-		inverseDollyEffect(accum);
+		inverseDollyEffect(accum); //ELIMINAR ¿?
+		
 		RV::_projection = glm::perspective(modifiedFOV, renderW / renderH, RV::zNear, RV::zFar);
 		RV::_MVP = RV::_projection * RV::_modelView;
+
+		float zPos = -20.f + 10 * sin(accum);
+		RV::_MVP = glm::translate(RV::_MVP, glm::vec3(0.f, 0.f, zPos));
+
+		modifiedFOV = 2 * (glm::atan((tan(RV::FOV / 2)* 20.f) / -zPos));
+		//std::cout << "FOV: " << glm::degrees(modifiedFOV) << std::endl;	
+		
 	}
+
+
 
 	
 
