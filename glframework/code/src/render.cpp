@@ -346,7 +346,343 @@ void drawCube() {
 }
 }
 
+/*namespace MyGeomShader {
+	GLuint MyGeomShaderProgram;
+	GLuint MyGeomShaderVAO;
+	GLuint MyGeomShaderVBO;
+	GLuint MyGeomShaders[3];
+	GLuint vertex_shader;
+	GLuint geometry_shader;
+	GLuint fragment_shader;
+
+	static const char * vertex_shader_source =
+	{
+	"#version 330\n\
+			\n\
+			void main() {\n\
+			const vec4 vertices[3] = vec4[3](vec4( 0.25, -0.25, 0.5, 1.0),\n\
+			vec4(0.25, 0.25, 0.5, 1.0),\n\
+			vec4( -0.25, -0.25, 0.5, 1.0));\n\
+			gl_Position = vertices[gl_VertexID];\n\
+			}"
+	};
+
+	static const char * geom_shader_source =
+	{ "#version 330\n\
+		layout(triangles) in;\n\
+		layout(triangle_strip, max_vertices = 3)\n\
+		out; \n\
+		void main()\n\
+		{\n\
+		const vec4 vertices[3] = vec4[3](vec4(0.25, -0.25, 0.5, 1.0),\n\
+		vec4(0.25, 0.25, 0.5, 1.0),\n\
+		vec4(-0.25, -0.25, 0.5, 1.0)); \n\
+		for (int i = 0; i < 3; i++)\n\
+		{\n\
+		gl_Position = vertices[i] + gl_in[0].gl_Position; \n\
+		EmitVertex(); \n\
+		}\n\
+		EndPrimitive(); \n\
+		}" };
+
+	static const char * fragment_shader_source =
+	{
+	"#version 330\n\
+		\n\
+		out vec4 color;\n\
+		\n\
+		void main() {\n\
+		color = vec4(0.0,0.8,1.0,1.0);\n\
+		}"
+	};
+
+	void setupGeometryShader()
+	{
+		glGenVertexArrays(1, &MyGeomShaderVAO);
+		glBindVertexArray(MyGeomShaderVAO);
+		glGenBuffers(3, &MyGeomShaderVBO);
+
+		MyGeomShaders[0] = compileShader(vertex_shader_source, GL_VERTEX_SHADER, "vertex_shader");
+		MyGeomShaders[1] = compileShader(geom_shader_source, GL_GEOMETRY_SHADER, "geometry_shader");
+		MyGeomShaders[2] = compileShader(fragment_shader_source, GL_FRAGMENT_SHADER, "fragment_shader");
+
+		glAttachShader(MyGeomShaderProgram, vertex_shader);
+		glAttachShader(MyGeomShaderProgram, geometry_shader);
+		glAttachShader(MyGeomShaderProgram, fragment_shader);
+		glLinkProgram(MyGeomShaderProgram);
+	}
+
+	void cleanupGeometryShader()
+	{
+		glDeleteVertexArrays(1, &MyGeomShaderVAO);
+		glDeleteProgram(MyGeomShaderProgram);
+
+		glDeleteShader(vertex_shader);
+		glDeleteShader(fragment_shader);
+	}
+
+	void drawGeometryShader()
+	{
+		glUseProgram(MyGeomShaderProgram);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+	}
+}*/
+
 /////////////////////////////////////////////////
+
+namespace MyGeomShader {
+	GLuint myRenderProgram;
+	GLuint myVAO;
+	void myCleanupCode() {
+		glDeleteVertexArrays(1, &myVAO);
+		glDeleteProgram(myRenderProgram);
+
+	}
+	GLuint myShaderCompile(void) {
+		static const GLchar * vertex_shader_source[] =
+		{
+		"#version 330\n\
+		\n\
+		void main() {\n\
+		const vec4 vertices[3] = vec4[3](vec4( 0.25, -0.25, 0.5, 1.0),\n\
+		vec4(0.25, 0.25, 0.5, 1.0),\n\
+		vec4( -0.25, -0.25, 0.5, 1.0));\n\
+		gl_Position = vertices[gl_VertexID];\n\
+		}"
+		};
+
+		static const GLchar * geom_shader_source[] =
+		{ "#version 330\n\
+			layout(triangles) in;\n\
+			layout(triangle_strip, max_vertices = 3) out; \n\
+			void main()\n\
+			{\n\
+			const vec4 vertices[3] = vec4[3](vec4(0.25, -0.25, 0.5, 1.0),\n\
+			vec4(0.25, 0.25, 0.5, 1.0),\n\
+			vec4(-0.25, -0.25, 0.5, 1.0)); \n\
+			for (int i = 0; i < 3; i++)\n\
+			{\n\
+			gl_Position = vertices[i] + gl_in[0].gl_Position; \n\
+			EmitVertex(); \n\
+			}\n\
+			EndPrimitive(); \n\
+			}" 
+		};
+
+
+		static const GLchar * fragment_shader_source[] =
+		{
+		"#version 330\n\
+		\n\
+		out vec4 color;\n\
+		\n\
+		void main() {\n\
+		color = vec4(0.0,0.8,1.0,1.0);\n\
+		}"
+		};
+
+		GLuint vertex_shader;
+		GLuint geom_shader;
+		GLuint fragment_shader;
+		GLuint program;
+		vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+		glShaderSource(vertex_shader, 1, vertex_shader_source, NULL);
+		glCompileShader(vertex_shader);
+		geom_shader = glCreateShader(GL_GEOMETRY_SHADER);
+		glShaderSource(geom_shader, 1, geom_shader_source, NULL);
+		glCompileShader(geom_shader);
+		fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+		glShaderSource(fragment_shader, 1, fragment_shader_source, NULL);
+		glCompileShader(fragment_shader);
+		program = glCreateProgram();
+		glAttachShader(program, vertex_shader);
+		glAttachShader(program, geom_shader);
+		glAttachShader(program, fragment_shader);
+		glLinkProgram(program);
+		
+		return program;
+	}
+	void myInitCode(void) {
+		myRenderProgram = myShaderCompile();
+		glGenVertexArrays(1, &myVAO);
+		glBindVertexArray(myVAO);
+	}
+	void myRenderCode(double currentTime) {
+		glUseProgram(myRenderProgram);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+	}
+}
+
+namespace Geometry2 {
+	GLuint cubeVao;
+	GLuint cubeVbo[3];
+	GLuint cubeShaders[2];
+	GLuint cubeProgram;
+	GLuint geom_shader;
+	glm::mat4 objMat = glm::mat4(1.f);
+
+	extern const float halfW = 0.5f;
+	int numVerts = 4;//24 + 6; // 4 vertex/face * 6 faces + 6 PRIMITIVE RESTART
+
+						   //   4---------7
+						   //  /|        /|
+						   // / |       / |
+						   //5---------6  |
+						   //|  0------|--3
+						   //| /       | /
+						   //|/        |/
+						   //1---------2
+	glm::vec3 verts[] = {
+		glm::vec3(-halfW, -halfW, -halfW),
+		glm::vec3(-halfW, -halfW,  halfW),
+		glm::vec3(halfW, -halfW,  halfW),
+		glm::vec3(halfW, -halfW, -halfW),
+		glm::vec3(-halfW,  halfW, -halfW),
+		glm::vec3(-halfW,  halfW,  halfW),
+		glm::vec3(halfW,  halfW,  halfW),
+		glm::vec3(halfW,  halfW, -halfW)
+	};
+	glm::vec3 norms[] = {
+		glm::vec3(0.f, -1.f,  0.f),
+		glm::vec3(0.f,  1.f,  0.f),
+		glm::vec3(-1.f,  0.f,  0.f),
+		glm::vec3(1.f,  0.f,  0.f),
+		glm::vec3(0.f,  0.f, -1.f),
+		glm::vec3(0.f,  0.f,  1.f)
+	};
+
+	glm::vec3 cubeVerts[] = {
+		verts[1], verts[0], verts[2], verts[3],
+		verts[5], verts[6], verts[4], verts[7],
+		verts[1], verts[5], verts[0], verts[4],
+		verts[2], verts[3], verts[6], verts[7],
+		verts[0], verts[4], verts[3], verts[7],
+		verts[1], verts[2], verts[5], verts[6]
+	};
+	glm::vec3 cubeNorms[] = {
+		norms[0], norms[0], norms[0], norms[0],
+		norms[1], norms[1], norms[1], norms[1],
+		norms[2], norms[2], norms[2], norms[2],
+		norms[3], norms[3], norms[3], norms[3],
+		norms[4], norms[4], norms[4], norms[4],
+		norms[5], norms[5], norms[5], norms[5]
+	};
+	GLubyte cubeIdx[] = {
+		0, 1, 2, 3/*, 3, UCHAR_MAX,
+		4, 5, 6, 7, UCHAR_MAX,
+		8, 9, 10, 11, UCHAR_MAX,
+		12, 13, 14, 15, UCHAR_MAX,
+		16, 17, 18, 19, UCHAR_MAX,
+		20, 21, 22, 23, UCHAR_MAX*/
+	};
+
+	const char* cube_vertShader =
+		"#version 330\n\
+		\n\
+		void main() {\n\
+		const vec4 vertices[3] = vec4[3](vec4( 0.25, -0.25, 0.5, 1.0),\n\
+		vec4(0.25, 0.25, 0.5, 1.0),\n\
+		vec4( -0.25, -0.25, 0.5, 1.0));\n\
+		gl_Position = vertices[gl_VertexID];\n\
+		}";
+	const char* cube_fragShader =
+		"#version 330\n\
+		\n\
+		out vec4 color;\n\
+		\n\
+		void main() {\n\
+		color = vec4(0.0,0.8,1.0,1.0);\n\
+		}";
+
+
+	static const GLchar * geom_shader_source[] =
+	{ "#version 330\n\
+			layout(triangles) in;\n\
+			layout(triangle_strip, max_vertices = 4) out; \n\
+			void main()\n\
+			{\n\
+			vec4 offset3 = vec4(0.5,0.5,0.0,0.0);\n\
+			vec4 offset1 = vec4(-0.5,0.5,0.0,0.0);\n\
+			vec4 offset2 = vec4(-0.5,-0.5,0.0,0.0);\n\
+			vec4 offset4 = vec4(0.5,-0.5,0.0,0.0);\n\
+			gl_Position = gl_in[0].gl_Position + offset1; \n\
+			EmitVertex(); \n\
+			gl_Position = gl_in[0].gl_Position + offset2; \n\
+			EmitVertex(); \n\
+			gl_Position = gl_in[0].gl_Position + offset3; \n\
+			EmitVertex(); \n\
+			gl_Position = gl_in[0].gl_Position + offset4; \n\
+			EmitVertex(); \n\
+			EndPrimitive(); \n\
+			}"
+	};
+
+	void setupCube() {
+		glGenVertexArrays(1, &cubeVao);
+		glBindVertexArray(cubeVao);
+		glGenBuffers(3, cubeVbo);
+
+		glBindBuffer(GL_ARRAY_BUFFER, cubeVbo[0]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVerts), cubeVerts, GL_STATIC_DRAW);
+		glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, cubeVbo[1]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(cubeNorms), cubeNorms, GL_STATIC_DRAW);
+		glVertexAttribPointer((GLuint)1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(1);
+
+		geom_shader =
+			glCreateShader(GL_GEOMETRY_SHADER);
+		glShaderSource(geom_shader, 1,
+			geom_shader_source, NULL);
+		glCompileShader(geom_shader);
+
+		glPrimitiveRestartIndex(UCHAR_MAX);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeVbo[2]);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubeIdx), cubeIdx, GL_STATIC_DRAW);
+
+		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		cubeShaders[0] = compileShader(cube_vertShader, GL_VERTEX_SHADER, "cubeVert");
+		cubeShaders[1] = compileShader(cube_fragShader, GL_FRAGMENT_SHADER, "cubeFrag");
+
+		cubeProgram = glCreateProgram();
+		glAttachShader(cubeProgram, cubeShaders[0]);
+		glAttachShader(cubeProgram, cubeShaders[1]);
+		glAttachShader(cubeProgram, geom_shader);
+		glBindAttribLocation(cubeProgram, 0, "in_Position");
+		glBindAttribLocation(cubeProgram, 1, "in_Normal");
+		linkProgram(cubeProgram);
+	}
+	void cleanupCube() {
+		glDeleteBuffers(3, cubeVbo);
+		glDeleteVertexArrays(1, &cubeVao);
+
+		glDeleteProgram(cubeProgram);
+		glDeleteShader(cubeShaders[0]);
+		glDeleteShader(cubeShaders[1]);
+	}
+	void updateCube(const glm::mat4& transform) {
+		objMat = transform;
+	}
+	void drawCube() {
+		glEnable(GL_PRIMITIVE_RESTART);
+		glBindVertexArray(cubeVao);
+		glUseProgram(cubeProgram);
+		glUniformMatrix4fv(glGetUniformLocation(cubeProgram, "objMat"), 1, GL_FALSE, glm::value_ptr(objMat));
+		glUniformMatrix4fv(glGetUniformLocation(cubeProgram, "mv_Mat"), 1, GL_FALSE, glm::value_ptr(RenderVars::_modelView));
+		glUniformMatrix4fv(glGetUniformLocation(cubeProgram, "mvpMat"), 1, GL_FALSE, glm::value_ptr(RenderVars::_MVP));
+		glUniform4f(glGetUniformLocation(cubeProgram, "color"), 0.1f, 1.f, 1.f, 0.f);
+		glDrawElements(GL_TRIANGLE_STRIP, numVerts, GL_UNSIGNED_BYTE, 0);
+
+		glUseProgram(0);
+		glBindVertexArray(0);
+		glDisable(GL_PRIMITIVE_RESTART);
+	}
+}
 
 
 void GLinit(int width, int height) {
@@ -361,9 +697,9 @@ void GLinit(int width, int height) {
 
 	// Setup shaders & geometry
 	Axis::setupAxis();
-	Cube::setupCube();
-
-
+	//Cube::setupCube();
+	//MyGeomShader::myInitCode();
+	Geometry2::setupCube();
 	/////////////////////////////////////////////////////TODO
 	// Do your init code here
 	// ...
@@ -374,8 +710,9 @@ void GLinit(int width, int height) {
 
 void GLcleanup() {
 	Axis::cleanupAxis();
-	Cube::cleanupCube();
-
+	//Cube::cleanupCube();
+	//MyGeomShader::myCleanupCode();
+	Geometry2::cleanupCube();
 	/////////////////////////////////////////////////////TODO
 	// Do your cleanup code here
 	// ...
@@ -395,7 +732,9 @@ void GLrender(float dt) {
 	RV::_MVP = RV::_projection * RV::_modelView;
 
 	Axis::drawAxis();
-	Cube::drawCube();
+	//Cube::drawCube();
+	//MyGeomShader::myRenderCode(dt);
+	Geometry2::drawCube();
 	/////////////////////////////////////////////////////TODO
 	// Do your render code here
 	// ...
