@@ -444,9 +444,7 @@ namespace MyGeomShader {
 		"#version 330\n\
 		\n\
 		void main() {\n\
-		const vec4 vertices[3] = vec4[3](vec4( 0.25, -0.25, 0.5, 1.0),\n\
-		vec4(0.25, 0.25, 0.5, 1.0),\n\
-		vec4( -0.25, -0.25, 0.5, 1.0));\n\
+		const vec4 vertex = vec4( 0, 0, 0, 1.0),\n\
 		gl_Position = vertices[gl_VertexID];\n\
 		}"
 		};
@@ -455,16 +453,17 @@ namespace MyGeomShader {
 		{ "#version 330\n\
 			layout(triangles) in;\n\
 			layout(triangle_strip, max_vertices = 3) out; \n\
+			uniform octoSize;\n\
 			void main()\n\
 			{\n\
-			const vec4 vertices[3] = vec4[3](vec4(0.25, -0.25, 0.5, 1.0),\n\
-			vec4(0.25, 0.25, 0.5, 1.0),\n\
-			vec4(-0.25, -0.25, 0.5, 1.0)); \n\
-			for (int i = 0; i < 3; i++)\n\
-			{\n\
-			gl_Position = vertices[i] + gl_in[0].gl_Position; \n\
-			EmitVertex(); \n\
-			}\n\
+			octoSize = 1;\n\
+			const vec4 vertex = vec4( 0, 0, 0, 1.0),\n\
+			vec4 up = {vertex.x, vertex.y+octoSize, vertex.z} ;\n\
+			vec4 right = {vertex.x+octoSize, vertex.y, vertex.z} ;\n\
+			vec4 front = vertex.x, vertex.y, vertex.z+octoSize} ;\n\
+			for(int i = 0; i < 3; i++){\n\
+			gl_Position = vertices[i]+ gl_in[0].gl_Position; \n\
+			EmitVertex();} \n\
 			EndPrimitive(); \n\
 			}" 
 		};
@@ -518,7 +517,8 @@ namespace Geometry2 {
 	GLuint cubeVbo[3];
 	GLuint cubeShaders[2];
 	GLuint cubeProgram;
-	GLuint geom_shader;
+	GLuint geom_shader;
+
 	glm::mat4 objMat = glm::mat4(1.f);
 
 	extern const float halfW = 0.5f;
@@ -576,7 +576,7 @@ namespace Geometry2 {
 		20, 21, 22, 23, UCHAR_MAX*/
 	};
 
-	const char* cube_vertShader =
+	/*const char* cube_vertShader =
 		"#version 330\n\
 		\n\
 		void main() {\n\
@@ -584,7 +584,7 @@ namespace Geometry2 {
 		vec4(0.25, 0.25, 0.5, 1.0),\n\
 		vec4( -0.25, -0.25, 0.5, 1.0));\n\
 		gl_Position = vertices[gl_VertexID];\n\
-		}";
+		}";*/
 	const char* cube_fragShader =
 		"#version 330\n\
 		\n\
@@ -595,27 +595,38 @@ namespace Geometry2 {
 		}";
 
 
+	static const char * vertex_shader_source =
+	{
+	"#version 330\n\
+		\n\
+		void main() {\n\
+		const vec4 vertex = vec4( 0, 0, 0, 1.0),\n\
+		gl_Position = vertex[gl_VertexID];\n\
+		}"
+	};
+
 	static const GLchar * geom_shader_source[] =
 	{ "#version 330\n\
 			layout(triangles) in;\n\
-			layout(triangle_strip, max_vertices = 4) out; \n\
+			layout(triangle_strip, max_vertices = 3) out; \n\
+			int octoSize;\n\
+			vec4 up;\n\
+			vec4 right;\n\
+			vec4 front; \n\
 			void main()\n\
 			{\n\
-			vec4 offset3 = vec4(0.5,0.5,0.0,0.0);\n\
-			vec4 offset1 = vec4(-0.5,0.5,0.0,0.0);\n\
-			vec4 offset2 = vec4(-0.5,-0.5,0.0,0.0);\n\
-			vec4 offset4 = vec4(0.5,-0.5,0.0,0.0);\n\
-			gl_Position = gl_in[0].gl_Position + offset1; \n\
-			EmitVertex(); \n\
-			gl_Position = gl_in[0].gl_Position + offset2; \n\
-			EmitVertex(); \n\
-			gl_Position = gl_in[0].gl_Position + offset3; \n\
-			EmitVertex(); \n\
-			gl_Position = gl_in[0].gl_Position + offset4; \n\
-			EmitVertex(); \n\
+			octoSize = 1;\n\
+			vec4 vertex = vec4( 0, 0, 0, 1.0),\n\
+			up = vec4(vertex.x, vertex.y+octoSize, vertex.z, 1.0) ;\n\
+			right = vec4(vertex.x+octoSize, vertex.y, vertex.z, 1.0) ;\n\
+			front = vec4(vertex.x, vertex.y, vertex.z+octoSize, 1.0) ;\n\
+			for(int i = 0; i < 3; i++){\n\
+			gl_Position = vertex[i]+ gl_in[0].gl_Position; \n\
+			EmitVertex();} \n\
 			EndPrimitive(); \n\
 			}"
 	};
+
 
 	void setupCube() {
 		glGenVertexArrays(1, &cubeVao);
@@ -636,7 +647,8 @@ namespace Geometry2 {
 			glCreateShader(GL_GEOMETRY_SHADER);
 		glShaderSource(geom_shader, 1,
 			geom_shader_source, NULL);
-		glCompileShader(geom_shader);
+		glCompileShader(geom_shader);
+
 
 		glPrimitiveRestartIndex(UCHAR_MAX);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeVbo[2]);
@@ -646,7 +658,7 @@ namespace Geometry2 {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-		cubeShaders[0] = compileShader(cube_vertShader, GL_VERTEX_SHADER, "cubeVert");
+		cubeShaders[0] = compileShader(vertex_shader_source, GL_VERTEX_SHADER, "cubeVert");
 		cubeShaders[1] = compileShader(cube_fragShader, GL_FRAGMENT_SHADER, "cubeFrag");
 
 		cubeProgram = glCreateProgram();
