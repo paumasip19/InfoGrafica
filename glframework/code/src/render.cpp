@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <GL\glew.h>
 #include <glm\gtc\type_ptr.hpp>
 #include <glm\gtc\matrix_transform.hpp>
@@ -783,6 +784,8 @@ void GUI() {
 		ImGui::ShowTestWindow(&show_test_window);
 	}
 =======
+=======
+>>>>>>> parent of 04e8439... Update
 #include <GL\glew.h>
 #include <glm\gtc\type_ptr.hpp>
 #include <glm\gtc\matrix_transform.hpp>
@@ -1215,5 +1218,8 @@ void GUI() {
 		ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
 		ImGui::ShowTestWindow(&show_test_window);
 	}
+<<<<<<< HEAD
+>>>>>>> parent of 04e8439... Update
+=======
 >>>>>>> parent of 04e8439... Update
 }
