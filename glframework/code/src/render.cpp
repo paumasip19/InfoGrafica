@@ -606,7 +606,7 @@ namespace Geometry2 {
 	static const GLchar * geom_shader_source[] =
 	{ "#version 330\n\
 			layout(points) in;\n\
-			layout(triangle_strip, max_vertices = 30) out; \n\
+			layout(triangle_strip, max_vertices = 72) out; \n\
 			uniform mat4 mvpMat;\n\
 			void main()\n\
 			{\n\
