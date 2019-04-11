@@ -6,11 +6,11 @@
 
 #include <imgui\imgui.h>
 #include <imgui\imgui_impl_sdl_gl3.h>
-
+#include <ctime>
 #include "GL_framework.h"
 
 bool ex1 = true;
-
+float multValueEx1 = 5;
 ///////// fw decl
 namespace ImGui {
 	void Render();
@@ -69,7 +69,7 @@ void GLmousecb(MouseEvent ev) {
 		default: break;
 		}
 	} else {
-		RV::prevMouse.button = ev.button;
+		V::prevMouse.button = ev.button;
 		RV::prevMouse.waspressed = true;
 	}
 	RV::prevMouse.lastx = ev.posx;
@@ -535,6 +535,9 @@ namespace Geometry2 {
 						   //| /       | /
 						   //|/        |/
 						   //1---------2
+
+	glm::vec3 origin[20];
+
 	glm::vec3 verts[] = {
 		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
 		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
@@ -557,6 +560,37 @@ namespace Geometry2 {
 		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
 		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5)
 	};
+
+	float randomFloat(float min, float max)
+	{
+		float scale = rand() / (float)RAND_MAX;
+		return min + scale * (max - min);
+	}
+
+	glm::vec3 verts_dir[] = {
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		
+	};
+	
 	glm::vec3 norms[] = {
 		glm::vec3(0.f, -1.f,  0.f),
 		glm::vec3(0.f,  1.f,  0.f),
@@ -619,6 +653,7 @@ namespace Geometry2 {
 			layout(points) in;\n\
 			layout(triangle_strip, max_vertices = 72) out; \n\
 			uniform mat4 mvpMat;\n\
+			uniform float time; \n\
 			flat out int isHexagon;\n\
 			void main()\n\
 			{\n\
@@ -879,35 +914,20 @@ namespace Geometry2 {
 			EndPrimitive();}\n\
 			}"
 	};
-
-	void move(int dt)
+	void move(float dt)
 	{
-		verts[0] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
-		verts[1] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
-		verts[2] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
-		verts[3] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
-		verts[4] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
-		verts[5] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
-		verts[6] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
-		verts[7] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
-		verts[8] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
-		verts[9] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
-		verts[10] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
-		verts[11] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
-		verts[12] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
-		verts[13] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
-		verts[14] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
-		verts[15] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
-		verts[16] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
-		verts[17] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
-		verts[18] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
-		verts[19] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
+		for (int i = 0; i < 20; i++) {
+			verts[i] = glm::vec3(origin[i].x+verts_dir[i].x*sin(dt)*multValueEx1, origin[i].y+verts_dir[i].y*+cos(dt)*multValueEx1, origin[i].z+verts_dir[i].z*sin(dt)/2* multValueEx1);
+		}
 	}
 
 	void setupCube() {
 		glGenVertexArrays(1, &cubeVao);
 		glBindVertexArray(cubeVao);
 		glGenBuffers(3, cubeVbo);
+		for (int i = 0; i < 20; i++) {
+			origin[i] = verts[i];
+		}
 
 		glBindBuffer(GL_ARRAY_BUFFER, cubeVbo[0]);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVerts), cubeVerts, GL_STATIC_DRAW);
@@ -966,6 +986,18 @@ namespace Geometry2 {
 		glDrawArrays(GL_POINTS, 0, numVerts);
 
 		move(dt);
+		glBindBuffer(GL_ARRAY_BUFFER, cubeVbo[0]);
+		float *buff = (float*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+		int j = 0;
+		for (int i = 0; i < 60;) {
+			buff[i] = verts[j].x;
+			buff[i+1] = verts[j].y;
+			buff[i+2] = verts[j].z;
+			j++;
+			i += 3;
+		}
+		glUnmapBuffer(GL_ARRAY_BUFFER);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		glUseProgram(0);
 		glBindVertexArray(0);
@@ -1054,6 +1086,7 @@ void GUI() {
 		{
 			ex1 = !ex1;
 		}
+		ImGui::DragFloat("MultValueEx1", &multValueEx1, 0.05f, 0, 5);
 	}
 	// .........................
 
