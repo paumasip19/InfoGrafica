@@ -523,7 +523,7 @@ namespace Geometry2 {
 	glm::mat4 objMat = glm::mat4(1.f);
 
 	extern const float halfW = 0.5f;
-	int numVerts = 1;//24 + 6; // 4 vertex/face * 6 faces + 6 PRIMITIVE RESTART
+	int numVerts = 20;//24 + 6; // 4 vertex/face * 6 faces + 6 PRIMITIVE RESTART
 
 						   //   4---------7
 						   //  /|        /|
@@ -534,15 +534,26 @@ namespace Geometry2 {
 						   //|/        |/
 						   //1---------2
 	glm::vec3 verts[] = {
-		glm::vec3(0, 0, 0)
-		/*glm::vec3(-halfW, -halfW, -halfW),
-		glm::vec3(-halfW, -halfW,  halfW),
-		glm::vec3(halfW, -halfW,  halfW),
-		glm::vec3(halfW, -halfW, -halfW),
-		glm::vec3(-halfW,  halfW, -halfW),
-		glm::vec3(-halfW,  halfW,  halfW),
-		glm::vec3(halfW,  halfW,  halfW),
-		glm::vec3(halfW,  halfW, -halfW)*/
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5)
 	};
 	glm::vec3 norms[] = {
 		glm::vec3(0.f, -1.f,  0.f),
@@ -554,13 +565,11 @@ namespace Geometry2 {
 	};
 
 	glm::vec3 cubeVerts[] = {
-		verts[0]//, verts[1]
-		/*verts[1], verts[0], verts[2], verts[3],
-		verts[5], verts[6], verts[4], verts[7],
-		verts[1], verts[5], verts[0], verts[4],
-		verts[2], verts[3], verts[6], verts[7],
-		verts[0], verts[4], verts[3], verts[7],
-		verts[1], verts[2], verts[5], verts[6]*/
+		verts[0], verts[1], verts[2], verts[3], 
+		verts[4], verts[5], verts[6], verts[7], 
+		verts[8], verts[9], verts[10], verts[11], 
+		verts[12], verts[13], verts[14], verts[15], 
+		verts[16], verts[17], verts[18], verts[19]
 	};
 	glm::vec3 cubeNorms[] = {
 		norms[0], norms[0], norms[0], norms[0],
@@ -571,12 +580,10 @@ namespace Geometry2 {
 		norms[5], norms[5], norms[5], norms[5]
 	};
 	GLubyte cubeIdx[] = {
-		0, 1/*, 2, 3, 3,
-		4, 5, 6, 7, UCHAR_MAX,
-		8, 9, 10, 11, UCHAR_MAX,
-		12, 13, 14, 15, UCHAR_MAX,
-		16, 17, 18, 19, UCHAR_MAX,
-		20, 21, 22, 23, UCHAR_MAX*/
+		0, 1, 2, 3, 4,
+		5, 6, 7, 8, 9,
+		10, 11, 12, 13, 
+		14, 15, 16, 17, 18, 19
 	};
 
 	const char* cube_vertShader =
@@ -597,9 +604,11 @@ namespace Geometry2 {
 		"#version 330\n\
 		\n\
 		out vec4 color;\n\
+		flat in int isHexagon;\n\
 		\n\
 		void main() {\n\
-		color = vec4(0.0,0.8,1.0,1.0);\n\
+		if(isHexagon == 0) { color = vec4(1.0f, 0.0f, 0.0f, 1.0f); }\n\
+		else { color = vec4(0.0f, 1.0f, 0.0f, 1.0f);}\n\
 		}";
 
 
@@ -608,188 +617,261 @@ namespace Geometry2 {
 			layout(points) in;\n\
 			layout(triangle_strip, max_vertices = 72) out; \n\
 			uniform mat4 mvpMat;\n\
+			flat out int isHexagon;\n\
 			void main()\n\
 			{\n\
-			vec4 point1 = vec4(2.0, 1.0, 0.0, 0.0);//RightQuadTop\n\
-			vec4 point2 = vec4(2.0, -1.0, 0.0, 0.0);//RightQuadBot\n\
-			vec4 point21 = vec4(2.0, 0.0, 1.0, 0.0);//RightQuadFront\n\
-			vec4 point22 = vec4(2.0, 0.0, -1.0, 0.0);//RightQuadBack\n\
-			vec4 point3 = vec4(-2.0, 1.0, 0.0, 0.0);//LeftQuadTop\n\
-			vec4 point4 = vec4(-2.0, -1.0, 0.0, 0.0);//LeftQuadBot\n\
-			vec4 point23 = vec4(-2.0, 0.0, 1.0, 0.0);//LeftQuadFront\n\
-			vec4 point24 = vec4(-2.0, 0.0, -1.0, 0.0);//LeftQuadBack\n\
-			vec4 point5 = vec4(0.0, 2.0, 1.0, 0.0);//TopQuadFront\n\
-			vec4 point6 = vec4(0.0, 2.0, -1.0, 0.0);//TopQuadBack\n\
-			vec4 point13 = vec4(1.0, 2.0, 0.0, 0.0);//TopQuadRight\n\
-			vec4 point14 = vec4(-1.0, 2.0, 0.0, 0.0);//TopQuadLeft\n\
-			vec4 point7 = vec4(0.0, -2.0, 1.0, 0.0);//BotQuadFront\n\
-			vec4 point8 = vec4(0.0, -2.0, -1.0, 0.0);//BotQuadBack\n\
-			vec4 point15 = vec4(1.0, -2.0, 0.0, 0.0);//BotQuadRight\n\
-			vec4 point16 = vec4(-1.0, -2.0, 0.0, 0.0);//BotQuadLeft\n\
-			vec4 point9 = vec4(1.0, 0.0, 2.0, 0.0);//FrontQuadRight\n\
-			vec4 point10 = vec4(-1.0, 0.0, 2.0, 0.0);//FrontQuadLeft\n\
-			vec4 point17 = vec4(0.0, 1.0, 2.0, 0.0);//FrontQuadTop\n\
-			vec4 point18 = vec4(0.0, -1.0, 2.0, 0.0);//FrontQuadBot\n\
-			vec4 point11 = vec4(1.0, 0.0, -2.0, 0.0);//BackQuadRight\n\
-			vec4 point12 = vec4(-1.0, 0.0, -2.0, 0.0);//BackQuadLeft\n\
-			vec4 point19 = vec4(0.0, 1.0, -2.0, 0.0);//BackQuadTop\n\
-			vec4 point20 = vec4(0.0, -1.0, -2.0, 0.0);//BackQuadBot\n\
-			for(int i = 0; i < 2; i++){\n\
+			vec4 point1 = vec4(1.0, 0.50, 0.0, 0.0);//RightQuadTop\n\
+			vec4 point2 = vec4(1.0, -0.50, 0.0, 0.0);//RightQuadBot\n\
+			vec4 point21 = vec4(1.0, 0.0, 0.50, 0.0);//RightQuadFront\n\
+			vec4 point22 = vec4(1.0, 0.0, -0.50, 0.0);//RightQuadBack\n\
+			vec4 point3 = vec4(-1.0, 0.50, 0.0, 0.0);//LeftQuadTop\n\
+			vec4 point4 = vec4(-1.0, -0.50, 0.0, 0.0);//LeftQuadBot\n\
+			vec4 point23 = vec4(-1.0, 0.0, 0.50, 0.0);//LeftQuadFront\n\
+			vec4 point24 = vec4(-1.0, 0.0, -0.50, 0.0);//LeftQuadBack\n\
+			vec4 point5 = vec4(0.0, 1.0, 0.50, 0.0);//TopQuadFront\n\
+			vec4 point6 = vec4(0.0, 1.0, -0.50, 0.0);//TopQuadBack\n\
+			vec4 point13 = vec4(0.50, 1.0, 0.0, 0.0);//TopQuadRight\n\
+			vec4 point14 = vec4(-0.50, 1.0, 0.0, 0.0);//TopQuadLeft\n\
+			vec4 point7 = vec4(0.0, -1.0, 0.50, 0.0);//BotQuadFront\n\
+			vec4 point8 = vec4(0.0, -1.0, -0.50, 0.0);//BotQuadBack\n\
+			vec4 point15 = vec4(0.50, -1.0, 0.0, 0.0);//BotQuadRight\n\
+			vec4 point16 = vec4(-0.50, -1.0, 0.0, 0.0);//BotQuadLeft\n\
+			vec4 point9 = vec4(0.50, 0.0, 1.0, 0.0);//FrontQuadRight\n\
+			vec4 point10 = vec4(-0.50, 0.0, 1.0, 0.0);//FrontQuadLeft\n\
+			vec4 point17 = vec4(0.0, 0.50, 1.0, 0.0);//FrontQuadTop\n\
+			vec4 point18 = vec4(0.0, -0.50, 1.0, 0.0);//FrontQuadBot\n\
+			vec4 point11 = vec4(0.50, 0.0, -1.0, 0.0);//BackQuadRight\n\
+			vec4 point12 = vec4(-0.50, 0.0, -1.0, 0.0);//BackQuadLeft\n\
+			vec4 point19 = vec4(0.0, 0.50, -1.0, 0.0);//BackQuadTop\n\
+			vec4 point20 = vec4(0.0, -0.50, -1.0, 0.0);//BackQuadBot\n\
+			for(int i = 0; i < 20; i++){\n\
+			isHexagon = 0;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point8); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point16); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point20); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point4); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point12); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point24); \n\
             EmitVertex(); \n\
-            EndPrimitive(); \n\
+            EndPrimitive();\n\
+			isHexagon = 0;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point15); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point8); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point2); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point20); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point22); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point11); \n\
             EmitVertex(); \n\
-            EndPrimitive(); \n\
+            EndPrimitive();\n\
+			isHexagon = 0;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point12); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point24); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point19); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point3); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point6); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point14); \n\
             EmitVertex(); \n\
             EndPrimitive(); \n\
+			isHexagon = 0;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point22); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point11); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point1); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point19); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point13); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point6); \n\
             EmitVertex(); \n\
             EndPrimitive(); \n\
+			isHexagon = 0;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point16); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point7); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point4); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point18); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point23); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point10); \n\
             EmitVertex(); \n\
             EndPrimitive(); \n\
+			isHexagon = 0;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point7); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point15); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point18); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point2); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point9); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point21); \n\
             EmitVertex(); \n\
             EndPrimitive(); \n\
+			isHexagon = 0;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point23); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point10); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point3); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point17); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point14); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point5); \n\
             EmitVertex(); \n\
             EndPrimitive(); \n\
+			isHexagon = 0;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point9); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point21); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point17); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point1); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point5); \n\
             EmitVertex(); \n\
+			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + point13); \n\
             EmitVertex(); \n\
             EndPrimitive(); \n\
+			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point20); \n\
 			EmitVertex(); \n\
+			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point12); \n\
 			EmitVertex(); \n\
+			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point11); \n\
 			EmitVertex(); \n\
+			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point19); \n\
 			EmitVertex(); \n\
 			EndPrimitive(); \n\
+			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point10); \n\
 			EmitVertex(); \n\
+			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point18); \n\
 			EmitVertex(); \n\
+			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point17); \n\
 			EmitVertex(); \n\
+			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point9); \n\
 			EmitVertex(); \n\
 			EndPrimitive(); \n\
+			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point4); \n\
 			EmitVertex(); \n\
+			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point23); \n\
 			EmitVertex(); \n\
+			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point24); \n\
 			EmitVertex(); \n\
+			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point3); \n\
 			EmitVertex(); \n\
 			EndPrimitive(); \n\
+			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point13); \n\
 			EmitVertex(); \n\
+			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point6); \n\
 			EmitVertex(); \n\
+			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point5); \n\
 			EmitVertex(); \n\
+			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point14); \n\
 			EmitVertex(); \n\
 			EndPrimitive(); \n\
+			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point21); \n\
 			EmitVertex(); \n\
+			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point2); \n\
 			EmitVertex(); \n\
+			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point1); \n\
 			EmitVertex(); \n\
+			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point22); \n\
 			EmitVertex(); \n\
 			EndPrimitive(); \n\
+			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point16); \n\
 			EmitVertex(); \n\
+			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point8); \n\
 			EmitVertex(); \n\
+			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point7); \n\
 			EmitVertex(); \n\
+			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + point15); \n\
 			EmitVertex(); \n\
 			EndPrimitive();}\n\
@@ -855,7 +937,7 @@ namespace Geometry2 {
 		glUniformMatrix4fv(glGetUniformLocation(cubeProgram, "objMat"), 1, GL_FALSE, glm::value_ptr(objMat));
 		glUniformMatrix4fv(glGetUniformLocation(cubeProgram, "mv_Mat"), 1, GL_FALSE, glm::value_ptr(RenderVars::_modelView));
 		glUniformMatrix4fv(glGetUniformLocation(cubeProgram, "mvpMat"), 1, GL_FALSE, glm::value_ptr(RenderVars::_MVP));
-		glUniform4f(glGetUniformLocation(cubeProgram, "color"), 0.1f, 1.f, 1.f, 0.f);
+		//glUniform4f(glGetUniformLocation(cubeProgram, "color"), 0.1f, 1.f, 1.f, 0.f);
 		glDrawArrays(GL_POINTS, 0, numVerts);
 
 		glUseProgram(0);
