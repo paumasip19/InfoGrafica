@@ -9,6 +9,8 @@
 
 #include "GL_framework.h"
 
+bool ex1 = true;
+
 ///////// fw decl
 namespace ImGui {
 	void Render();
@@ -878,6 +880,30 @@ namespace Geometry2 {
 			}"
 	};
 
+	void move(int dt)
+	{
+		verts[0] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
+		verts[1] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
+		verts[2] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
+		verts[3] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
+		verts[4] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
+		verts[5] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
+		verts[6] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
+		verts[7] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
+		verts[8] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
+		verts[9] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
+		verts[10] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
+		verts[11] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
+		verts[12] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
+		verts[13] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
+		verts[14] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
+		verts[15] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
+		verts[16] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
+		verts[17] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
+		verts[18] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
+		verts[19] = glm::vec3(rand() % 10 - dt, rand() % 10, rand() % 10 - dt);
+	}
+
 	void setupCube() {
 		glGenVertexArrays(1, &cubeVao);
 		glBindVertexArray(cubeVao);
@@ -930,15 +956,16 @@ namespace Geometry2 {
 	void updateCube(const glm::mat4& transform) {
 		objMat = transform;
 	}
-	void drawCube() {
+	void drawCube(float dt) {
 		glEnable(GL_PRIMITIVE_RESTART);
 		glBindVertexArray(cubeVao);
 		glUseProgram(cubeProgram);
 		glUniformMatrix4fv(glGetUniformLocation(cubeProgram, "objMat"), 1, GL_FALSE, glm::value_ptr(objMat));
 		glUniformMatrix4fv(glGetUniformLocation(cubeProgram, "mv_Mat"), 1, GL_FALSE, glm::value_ptr(RenderVars::_modelView));
 		glUniformMatrix4fv(glGetUniformLocation(cubeProgram, "mvpMat"), 1, GL_FALSE, glm::value_ptr(RenderVars::_MVP));
-		//glUniform4f(glGetUniformLocation(cubeProgram, "color"), 0.1f, 1.f, 1.f, 0.f);
 		glDrawArrays(GL_POINTS, 0, numVerts);
+
+		move(dt);
 
 		glUseProgram(0);
 		glBindVertexArray(0);
@@ -958,6 +985,7 @@ void GLinit(int width, int height) {
 	RV::_projection = glm::perspective(RV::FOV, (float)width / (float)height, RV::zNear, RV::zFar);
 
 	// Setup shaders & geometry
+
 	Axis::setupAxis();
 	//Cube::setupCube();
 	//MyGeomShader::myInitCode();
@@ -993,10 +1021,18 @@ void GLrender(float dt) {
 
 	RV::_MVP = RV::_projection * RV::_modelView;
 
+	static float accum = 0.f;
+	accum += dt;
+	if (accum > glm::two_pi<float>())
+	{
+		accum = 0.f;
+	}
+
+
 	Axis::drawAxis();
 	//Cube::drawCube();
 	//MyGeomShader::myRenderCode(dt);
-	Geometry2::drawCube();
+	if (ex1)Geometry2::drawCube(accum);
 	/////////////////////////////////////////////////////TODO
 	// Do your render code here
 	// ...
@@ -1014,12 +1050,10 @@ void GUI() {
 	{
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
-		/////////////////////////////////////////////////////TODO
-		// Do your GUI code here....
-		// ...
-		// ...
-		// ...
-		/////////////////////////////////////////////////////////
+		if (ImGui::Button("Exercice 1", ImVec2(150, 20)))
+		{
+			ex1 = !ex1;
+		}
 	}
 	// .........................
 
