@@ -1148,258 +1148,372 @@ namespace Geometry3 {
 			flat out int isHexagon;\n\
 			void main()\n\
 			{\n\
-			vec4 RightQuadTop = vec4(1.0, 0.50, 0.0, 0.0);//RightQuadTop\n\
-			vec4 RightQuadBot = vec4(1.0, -0.50, 0.0, 0.0);//RightQuadBot\n\
-			vec4 RightQuadFront = vec4(1.0, 0.0, 0.50, 0.0);//RightQuadFront\n\
-			vec4 RightQuadBack = vec4(1.0, 0.0, -0.50, 0.0);//RightQuadBack\n\
-			vec4 LeftQuadTop = vec4(-1.0, 0.50, 0.0, 0.0);//LeftQuadTop\n\
-			vec4 LeftQuadBot = vec4(-1.0, -0.50, 0.0, 0.0);//LeftQuadBot\n\
-			vec4 LeftQuadFront = vec4(-1.0, 0.0, 0.50, 0.0);//LeftQuadFront\n\
-			vec4 LeftQuadBack = vec4(-1.0, 0.0, -0.50, 0.0);//LeftQuadBack\n\
-			vec4 TopQuadFront = vec4(0.0, 1.0, 0.50, 0.0);//TopQuadFront\n\
-			vec4 TopQuadBack = vec4(0.0, 1.0, -0.50, 0.0);//TopQuadBack\n\
-			vec4 TopQuadRight = vec4(0.50, 1.0, 0.0, 0.0);//TopQuadRight\n\
-			vec4 TopQuadLeft = vec4(-0.50, 1.0, 0.0, 0.0);//TopQuadLeft\n\
-			vec4 BotQuadFront = vec4(0.0, -1.0, 0.50, 0.0);//BotQuadFront\n\
-			vec4 BotQuadBack = vec4(0.0, -1.0, -0.50, 0.0);//BotQuadBack\n\
-			vec4 BotQuadRight = vec4(0.50, -1.0, 0.0, 0.0);//BotQuadRight\n\
-			vec4 BotQuadLeft = vec4(-0.50, -1.0, 0.0, 0.0);//BotQuadLeft\n\
-			vec4 FrontQuadRight = vec4(0.50, 0.0, 1.0, 0.0);//FrontQuadRight\n\
-			vec4 FrontQuadLeft = vec4(-0.50, 0.0, 1.0, 0.0);//FrontQuadLeft\n\
-			vec4 FrontQuadTop = vec4(0.0, 0.50, 1.0, 0.0);//FrontQuadTop\n\
-			vec4 FrontQuadBot = vec4(0.0, -0.50, 1.0, 0.0);//FrontQuadBot\n\
-			vec4 BackQuadRight = vec4(0.50, 0.0, -1.0, 0.0);//BackQuadRight\n\
-			vec4 BackQuadLeft = vec4(-0.50, 0.0, -1.0, 0.0);//BackQuadLeft\n\
-			vec4 BackQuadTop = vec4(0.0, 0.50, -1.0, 0.0);//BackQuadTop\n\
-			vec4 BackQuadBot = vec4(0.0, -0.50, -1.0, 0.0);//BackQuadBot\n\
+			vec4 RightQuadTop=vec4(1.0, 0.50, 0.0, 0.0);\n\
+			vec4 RightQuadBot=vec4(1.0, -0.50, 0.0, 0.0);\n\
+			vec4 RightQuadFront=vec4(1.0, 0.0, 0.50, 0.0);\n\
+			vec4 RightQuadBack=vec4(1.0, 0.0, -0.50, 0.0);\n\
+			vec4 LeftQuadTop=vec4(-1.0, 0.50, 0.0, 0.0);\n\
+			vec4 LeftQuadBot=vec4(-1.0, -0.50, 0.0, 0.0);\n\
+			vec4 LeftQuadFront=vec4(-1.0, 0.0, 0.50, 0.0);\n\
+			vec4 LeftQuadBack=vec4(-1.0, 0.0, -0.50, 0.0);\n\
+			vec4 TopQuadFront=vec4(0.0, 1.0, 0.50, 0.0);\n\
+			vec4 TopQuadBack=vec4(0.0, 1.0, -0.50, 0.0);\n\
+			vec4 TopQuadRight=vec4(0.50, 1.0, 0.0, 0.0);\n\
+			vec4 TopQuadLeft=vec4(-0.50, 1.0, 0.0, 0.0);\n\
+			vec4 BotQuadFront=vec4(0.0, -1.0, 0.50, 0.0);\n\
+			vec4 BotQuadBack=vec4(0.0, -1.0, -0.50, 0.0);\n\
+			vec4 BotQuadRight=vec4(0.50, -1.0, 0.0, 0.0);\n\
+			vec4 BotQuadLeft=vec4(-0.50, -1.0, 0.0, 0.0);\n\
+			vec4 FrontQuadRight=vec4(0.50, 0.0, 1.0, 0.0);\n\
+			vec4 FrontQuadLeft=vec4(-0.50, 0.0, 1.0, 0.0);\n\
+			vec4 FrontQuadTop=vec4(0.0, 0.50, 1.0, 0.0);\n\
+			vec4 FrontQuadBot=vec4(0.0, -0.50, 1.0, 0.0);\n\
+			vec4 BackQuadRight=vec4(0.50, 0.0, -1.0, 0.0);\n\
+			vec4 BackQuadLeft=vec4(-0.50, 0.0, -1.0, 0.0);\n\
+			vec4 BackQuadTop=vec4(0.0, 0.50, -1.0, 0.0);\n\
+			vec4 BackQuadBot=vec4(0.0, -0.50, -1.0, 0.0);\n\
+			vec4 RightQuadTop2=vec4(1.0, 0.50, 0.0, 0.0);\n\
+			vec4 RightQuadBot2=vec4(1.0, -0.50, 0.0, 0.0);\n\
+			vec4 RightQuadFront2=vec4(1.0, 0.0, 0.50, 0.0);\n\
+			vec4 RightQuadBack2=vec4(1.0, 0.0, -0.50, 0.0);\n\
+			vec4 LeftQuadTop2=vec4(-1.0, 0.50, 0.0, 0.0);\n\
+			vec4 LeftQuadBot2=vec4(-1.0, -0.50, 0.0, 0.0);\n\
+			vec4 LeftQuadFront2=vec4(-1.0, 0.0, 0.50, 0.0);\n\
+			vec4 LeftQuadBack2=vec4(-1.0, 0.0, -0.50, 0.0);\n\
+			vec4 TopQuadFront2=vec4(0.0, 1.0, 0.50, 0.0);\n\
+			vec4 TopQuadBack2=vec4(0.0, 1.0, -0.50, 0.0);\n\
+			vec4 TopQuadRight2=vec4(0.50, 1.0, 0.0, 0.0);\n\
+			vec4 TopQuadLeft2=vec4(-0.50, 1.0, 0.0, 0.0);\n\
+			vec4 BotQuadFront2=vec4(0.0, -1.0, 0.50, 0.0);\n\
+			vec4 BotQuadBack2=vec4(0.0, -1.0, -0.50, 0.0);\n\
+			vec4 BotQuadRight2=vec4(0.50, -1.0, 0.0, 0.0);\n\
+			vec4 BotQuadLeft2=vec4(-0.50, -1.0, 0.0, 0.0);\n\
+			vec4 FrontQuadRight2=vec4(0.50, 0.0, 1.0, 0.0);\n\
+			vec4 FrontQuadLeft2=vec4(-0.50, 0.0, 1.0, 0.0);\n\
+			vec4 FrontQuadTop2=vec4(0.0, 0.50, 1.0, 0.0);\n\
+			vec4 FrontQuadBot2=vec4(0.0, -0.50, 1.0, 0.0);\n\
+			vec4 BackQuadRight2=vec4(0.50, 0.0, -1.0, 0.0);\n\
+			vec4 BackQuadLeft2=vec4(-0.50, 0.0, -1.0, 0.0);\n\
+			vec4 BackQuadTop2=vec4(0.0, 0.50, -1.0, 0.0);\n\
+			vec4 BackQuadBot2=vec4(0.0, -0.50, -1.0, 0.0);\n\
 			for(int i = 0; i < 20; i++){\n\
 			isHexagon = 0;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadBack); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadLeft); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadBot); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadBot); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadLeft); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadBack); \n\
             EmitVertex(); \n\
             EndPrimitive();\n\
-			isHexagon = 0;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadRight); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadBack); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadBot); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadBot); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadBack); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadRight); \n\
             EmitVertex(); \n\
             EndPrimitive();\n\
-			isHexagon = 0;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadLeft); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadBack); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadTop); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadTop); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadBack); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadLeft); \n\
             EmitVertex(); \n\
             EndPrimitive(); \n\
-			isHexagon = 0;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadBack); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadRight); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadTop); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadTop); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadRight); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadBack); \n\
             EmitVertex(); \n\
             EndPrimitive(); \n\
-			isHexagon = 0;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadLeft); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadFront); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadBot); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadBot); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadFront); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadLeft); \n\
             EmitVertex(); \n\
             EndPrimitive(); \n\
-			isHexagon = 0;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadFront); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadRight); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadBot); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadBot); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadRight); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadFront); \n\
             EmitVertex(); \n\
             EndPrimitive(); \n\
-			isHexagon = 0;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadFront); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadLeft); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadTop); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadTop); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadLeft); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadFront); \n\
             EmitVertex(); \n\
             EndPrimitive(); \n\
-			isHexagon = 0;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadRight); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadFront); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadTop); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadTop); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadFront); \n\
             EmitVertex(); \n\
-			isHexagon = 0;\n\
             gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadRight); \n\
             EmitVertex(); \n\
             EndPrimitive(); \n\
 			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadBot); \n\
 			EmitVertex(); \n\
-			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadLeft); \n\
 			EmitVertex(); \n\
-			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadRight); \n\
 			EmitVertex(); \n\
-			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadTop); \n\
 			EmitVertex(); \n\
 			EndPrimitive(); \n\
-			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadLeft); \n\
 			EmitVertex(); \n\
-			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadBot); \n\
 			EmitVertex(); \n\
-			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadTop); \n\
 			EmitVertex(); \n\
-			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadRight); \n\
 			EmitVertex(); \n\
 			EndPrimitive(); \n\
-			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadBot); \n\
 			EmitVertex(); \n\
-			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadFront); \n\
 			EmitVertex(); \n\
-			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadBack); \n\
 			EmitVertex(); \n\
-			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadTop); \n\
 			EmitVertex(); \n\
 			EndPrimitive(); \n\
-			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadRight); \n\
 			EmitVertex(); \n\
-			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadBack); \n\
 			EmitVertex(); \n\
-			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadFront); \n\
 			EmitVertex(); \n\
-			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadLeft); \n\
 			EmitVertex(); \n\
 			EndPrimitive(); \n\
-			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadFront); \n\
 			EmitVertex(); \n\
-			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadBot); \n\
 			EmitVertex(); \n\
-			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadTop); \n\
 			EmitVertex(); \n\
-			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadBack); \n\
 			EmitVertex(); \n\
 			EndPrimitive(); \n\
-			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadLeft); \n\
 			EmitVertex(); \n\
-			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadBack); \n\
 			EmitVertex(); \n\
-			isHexagon = 1;\n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadFront); \n\
 			EmitVertex(); \n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadRight); \n\
+			EmitVertex(); \n\
+			EndPrimitive();\n\
+			isHexagon = 0;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadBack); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadLeft); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadBot); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadBot); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadLeft); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadBack); \n\
+            EmitVertex(); \n\
+            EndPrimitive();\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadRight); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadBack); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadBot); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadBot); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadBack); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadRight); \n\
+            EmitVertex(); \n\
+            EndPrimitive();\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadLeft); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadBack); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadTop); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadTop); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadBack); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadLeft); \n\
+            EmitVertex(); \n\
+            EndPrimitive(); \n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadBack); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadRight); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadTop); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadTop); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadRight); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadBack); \n\
+            EmitVertex(); \n\
+            EndPrimitive(); \n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadLeft); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadFront); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadBot); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadBot); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadFront); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadLeft); \n\
+            EmitVertex(); \n\
+            EndPrimitive(); \n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadFront); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadRight); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadBot); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadBot); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadRight); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadFront); \n\
+            EmitVertex(); \n\
+            EndPrimitive(); \n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadFront); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadLeft); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadTop); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadTop); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadLeft); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadFront); \n\
+            EmitVertex(); \n\
+            EndPrimitive(); \n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadRight); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadFront); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadTop); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadTop); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadFront); \n\
+            EmitVertex(); \n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadRight); \n\
+            EmitVertex(); \n\
+            EndPrimitive(); \n\
 			isHexagon = 1;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadBot); \n\
+			EmitVertex(); \n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadLeft); \n\
+			EmitVertex(); \n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadRight); \n\
+			EmitVertex(); \n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadTop); \n\
+			EmitVertex(); \n\
+			EndPrimitive(); \n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadLeft); \n\
+			EmitVertex(); \n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadBot); \n\
+			EmitVertex(); \n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadTop); \n\
+			EmitVertex(); \n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadRight); \n\
+			EmitVertex(); \n\
+			EndPrimitive(); \n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadBot); \n\
+			EmitVertex(); \n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadFront); \n\
+			EmitVertex(); \n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadBack); \n\
+			EmitVertex(); \n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadTop); \n\
+			EmitVertex(); \n\
+			EndPrimitive(); \n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadRight); \n\
+			EmitVertex(); \n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadBack); \n\
+			EmitVertex(); \n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadFront); \n\
+			EmitVertex(); \n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadLeft); \n\
+			EmitVertex(); \n\
+			EndPrimitive(); \n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadFront); \n\
+			EmitVertex(); \n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadBot); \n\
+			EmitVertex(); \n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadTop); \n\
+			EmitVertex(); \n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadBack); \n\
+			EmitVertex(); \n\
+			EndPrimitive(); \n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadLeft); \n\
+			EmitVertex(); \n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadBack); \n\
+			EmitVertex(); \n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadFront); \n\
+			EmitVertex(); \n\
 			gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadRight); \n\
 			EmitVertex(); \n\
 			EndPrimitive();}\n\
