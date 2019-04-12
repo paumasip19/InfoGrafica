@@ -1006,6 +1006,496 @@ namespace Geometry2 {
 	}
 }
 
+namespace Geometry3 {
+	GLuint cubeVao;
+	GLuint cubeVbo[3];
+	GLuint cubeShaders[2];
+	GLuint cubeProgram;
+	GLuint geom_shader;
+
+	glm::mat4 objMat = glm::mat4(1.f);
+
+	extern const float halfW = 0.5f;
+	int numVerts = 20;//24 + 6; // 4 vertex/face * 6 faces + 6 PRIMITIVE RESTART
+
+						   //   4---------7
+						   //  /|        /|
+						   // / |       / |
+						   //5---------6  |
+						   //|  0------|--3
+						   //| /       | /
+						   //|/        |/
+						   //1---------2
+
+	glm::vec3 origin[20];
+
+	glm::vec3 verts[] = {
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5),
+		glm::vec3(rand() % 10 - 5, rand() % 10, rand() % 10 - 5)
+	};
+
+	float randomFloat(float min, float max)
+	{
+		float scale = rand() / (float)RAND_MAX;
+		return min + scale * (max - min);
+	}
+
+	glm::vec3 verts_dir[] = {
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+		glm::normalize(glm::vec3(randomFloat(-1,1), randomFloat(0, 1),randomFloat(-1,1))),
+
+	};
+
+	glm::vec3 norms[] = {
+		glm::vec3(0.f, -1.f,  0.f),
+		glm::vec3(0.f,  1.f,  0.f),
+		glm::vec3(-1.f,  0.f,  0.f),
+		glm::vec3(1.f,  0.f,  0.f),
+		glm::vec3(0.f,  0.f, -1.f),
+		glm::vec3(0.f,  0.f,  1.f)
+	};
+
+	glm::vec3 cubeVerts[] = {
+		verts[0], verts[1], verts[2], verts[3],
+		verts[4], verts[5], verts[6], verts[7],
+		verts[8], verts[9], verts[10], verts[11],
+		verts[12], verts[13], verts[14], verts[15],
+		verts[16], verts[17], verts[18], verts[19]
+	};
+	glm::vec3 cubeNorms[] = {
+		norms[0], norms[0], norms[0], norms[0],
+		norms[1], norms[1], norms[1], norms[1],
+		norms[2], norms[2], norms[2], norms[2],
+		norms[3], norms[3], norms[3], norms[3],
+		norms[4], norms[4], norms[4], norms[4],
+		norms[5], norms[5], norms[5], norms[5]
+	};
+	GLubyte cubeIdx[] = {
+		0, 1, 2, 3, 4,
+		5, 6, 7, 8, 9,
+		10, 11, 12, 13,
+		14, 15, 16, 17, 18, 19
+	};
+
+	const char* cube_vertShader =
+		"#version 330\n\
+		\n\
+		in vec3 in_Position;\n\
+		in vec3 in_Normal;\n\
+		out vec4 vert_Normal;\n\
+		uniform mat4 objMat;\n\
+		uniform mat4 mv_Mat;\n\
+		uniform mat4 mvpMat;\n\
+		void main() {\n\
+		gl_Position = vec4(in_Position, 1.0);\n\
+		vert_Normal = mv_Mat * objMat * vec4(in_Normal, 0.0);\n\
+		}";
+
+	const char* cube_fragShader =
+		"#version 330\n\
+		\n\
+		out vec4 color;\n\
+		flat in int isHexagon;\n\
+		\n\
+		void main() {\n\
+		if(isHexagon == 0) { color = vec4(1.0f, 0.0f, 0.0f, 1.0f); }\n\
+		else { color = vec4(0.0f, 1.0f, 0.0f, 1.0f);}\n\
+		}";
+
+
+	static const GLchar * geom_shader_source[] =
+	{ "#version 330\n\
+			layout(points) in;\n\
+			layout(triangle_strip, max_vertices = 72) out; \n\
+			uniform mat4 mvpMat;\n\
+			uniform float time; \n\
+			flat out int isHexagon;\n\
+			void main()\n\
+			{\n\
+			vec4 RightQuadTop = vec4(1.0, 0.50, 0.0, 0.0);//RightQuadTop\n\
+			vec4 RightQuadBot = vec4(1.0, -0.50, 0.0, 0.0);//RightQuadBot\n\
+			vec4 RightQuadFront = vec4(1.0, 0.0, 0.50, 0.0);//RightQuadFront\n\
+			vec4 RightQuadBack = vec4(1.0, 0.0, -0.50, 0.0);//RightQuadBack\n\
+			vec4 LeftQuadTop = vec4(-1.0, 0.50, 0.0, 0.0);//LeftQuadTop\n\
+			vec4 LeftQuadBot = vec4(-1.0, -0.50, 0.0, 0.0);//LeftQuadBot\n\
+			vec4 LeftQuadFront = vec4(-1.0, 0.0, 0.50, 0.0);//LeftQuadFront\n\
+			vec4 LeftQuadBack = vec4(-1.0, 0.0, -0.50, 0.0);//LeftQuadBack\n\
+			vec4 TopQuadFront = vec4(0.0, 1.0, 0.50, 0.0);//TopQuadFront\n\
+			vec4 TopQuadBack = vec4(0.0, 1.0, -0.50, 0.0);//TopQuadBack\n\
+			vec4 TopQuadRight = vec4(0.50, 1.0, 0.0, 0.0);//TopQuadRight\n\
+			vec4 TopQuadLeft = vec4(-0.50, 1.0, 0.0, 0.0);//TopQuadLeft\n\
+			vec4 BotQuadFront = vec4(0.0, -1.0, 0.50, 0.0);//BotQuadFront\n\
+			vec4 BotQuadBack = vec4(0.0, -1.0, -0.50, 0.0);//BotQuadBack\n\
+			vec4 BotQuadRight = vec4(0.50, -1.0, 0.0, 0.0);//BotQuadRight\n\
+			vec4 BotQuadLeft = vec4(-0.50, -1.0, 0.0, 0.0);//BotQuadLeft\n\
+			vec4 FrontQuadRight = vec4(0.50, 0.0, 1.0, 0.0);//FrontQuadRight\n\
+			vec4 FrontQuadLeft = vec4(-0.50, 0.0, 1.0, 0.0);//FrontQuadLeft\n\
+			vec4 FrontQuadTop = vec4(0.0, 0.50, 1.0, 0.0);//FrontQuadTop\n\
+			vec4 FrontQuadBot = vec4(0.0, -0.50, 1.0, 0.0);//FrontQuadBot\n\
+			vec4 BackQuadRight = vec4(0.50, 0.0, -1.0, 0.0);//BackQuadRight\n\
+			vec4 BackQuadLeft = vec4(-0.50, 0.0, -1.0, 0.0);//BackQuadLeft\n\
+			vec4 BackQuadTop = vec4(0.0, 0.50, -1.0, 0.0);//BackQuadTop\n\
+			vec4 BackQuadBot = vec4(0.0, -0.50, -1.0, 0.0);//BackQuadBot\n\
+			for(int i = 0; i < 20; i++){\n\
+			isHexagon = 0;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadBack); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadLeft); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadBot); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadBot); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadLeft); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadBack); \n\
+            EmitVertex(); \n\
+            EndPrimitive();\n\
+			isHexagon = 0;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadRight); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadBack); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadBot); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadBot); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadBack); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadRight); \n\
+            EmitVertex(); \n\
+            EndPrimitive();\n\
+			isHexagon = 0;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadLeft); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadBack); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadTop); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadTop); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadBack); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadLeft); \n\
+            EmitVertex(); \n\
+            EndPrimitive(); \n\
+			isHexagon = 0;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadBack); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadRight); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadTop); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadTop); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadRight); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadBack); \n\
+            EmitVertex(); \n\
+            EndPrimitive(); \n\
+			isHexagon = 0;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadLeft); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadFront); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadBot); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadBot); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadFront); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadLeft); \n\
+            EmitVertex(); \n\
+            EndPrimitive(); \n\
+			isHexagon = 0;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadFront); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadRight); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadBot); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadBot); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadRight); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadFront); \n\
+            EmitVertex(); \n\
+            EndPrimitive(); \n\
+			isHexagon = 0;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadFront); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadLeft); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadTop); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadTop); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadLeft); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadFront); \n\
+            EmitVertex(); \n\
+            EndPrimitive(); \n\
+			isHexagon = 0;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadRight); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadFront); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadTop); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadTop); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadFront); \n\
+            EmitVertex(); \n\
+			isHexagon = 0;\n\
+            gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadRight); \n\
+            EmitVertex(); \n\
+            EndPrimitive(); \n\
+			isHexagon = 1;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadBot); \n\
+			EmitVertex(); \n\
+			isHexagon = 1;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadLeft); \n\
+			EmitVertex(); \n\
+			isHexagon = 1;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadRight); \n\
+			EmitVertex(); \n\
+			isHexagon = 1;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + BackQuadTop); \n\
+			EmitVertex(); \n\
+			EndPrimitive(); \n\
+			isHexagon = 1;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadLeft); \n\
+			EmitVertex(); \n\
+			isHexagon = 1;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadBot); \n\
+			EmitVertex(); \n\
+			isHexagon = 1;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadTop); \n\
+			EmitVertex(); \n\
+			isHexagon = 1;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + FrontQuadRight); \n\
+			EmitVertex(); \n\
+			EndPrimitive(); \n\
+			isHexagon = 1;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadBot); \n\
+			EmitVertex(); \n\
+			isHexagon = 1;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadFront); \n\
+			EmitVertex(); \n\
+			isHexagon = 1;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadBack); \n\
+			EmitVertex(); \n\
+			isHexagon = 1;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + LeftQuadTop); \n\
+			EmitVertex(); \n\
+			EndPrimitive(); \n\
+			isHexagon = 1;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadRight); \n\
+			EmitVertex(); \n\
+			isHexagon = 1;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadBack); \n\
+			EmitVertex(); \n\
+			isHexagon = 1;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadFront); \n\
+			EmitVertex(); \n\
+			isHexagon = 1;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + TopQuadLeft); \n\
+			EmitVertex(); \n\
+			EndPrimitive(); \n\
+			isHexagon = 1;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadFront); \n\
+			EmitVertex(); \n\
+			isHexagon = 1;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadBot); \n\
+			EmitVertex(); \n\
+			isHexagon = 1;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadTop); \n\
+			EmitVertex(); \n\
+			isHexagon = 1;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + RightQuadBack); \n\
+			EmitVertex(); \n\
+			EndPrimitive(); \n\
+			isHexagon = 1;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadLeft); \n\
+			EmitVertex(); \n\
+			isHexagon = 1;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadBack); \n\
+			EmitVertex(); \n\
+			isHexagon = 1;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadFront); \n\
+			EmitVertex(); \n\
+			isHexagon = 1;\n\
+			gl_Position = mvpMat * (gl_in[i].gl_Position + BotQuadRight); \n\
+			EmitVertex(); \n\
+			EndPrimitive();}\n\
+			}"
+	};
+	void move(float dt)
+	{
+		for (int i = 0; i < 20; i++) {
+			verts[i] = glm::vec3(origin[i].x + verts_dir[i].x*sin(dt)*multValueEx1, origin[i].y + verts_dir[i].y*+cos(dt)*multValueEx1, origin[i].z + verts_dir[i].z*sin(dt) / 2 * multValueEx1);
+		}
+	}
+
+	void setupCube() {
+		glGenVertexArrays(1, &cubeVao);
+		glBindVertexArray(cubeVao);
+		glGenBuffers(3, cubeVbo);
+		for (int i = 0; i < 20; i++) {
+			origin[i] = verts[i];
+		}
+
+		glBindBuffer(GL_ARRAY_BUFFER, cubeVbo[0]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVerts), cubeVerts, GL_STATIC_DRAW);
+		glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, cubeVbo[1]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(cubeNorms), cubeNorms, GL_STATIC_DRAW);
+		glVertexAttribPointer((GLuint)1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(1);
+
+		geom_shader =
+			glCreateShader(GL_GEOMETRY_SHADER);
+		glShaderSource(geom_shader, 1,
+			geom_shader_source, NULL);
+		glCompileShader(geom_shader);
+
+
+		glPrimitiveRestartIndex(UCHAR_MAX);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeVbo[2]);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubeIdx), cubeIdx, GL_STATIC_DRAW);
+
+		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		cubeShaders[0] = compileShader(cube_vertShader, GL_VERTEX_SHADER, "cubeVert");
+		cubeShaders[1] = compileShader(cube_fragShader, GL_FRAGMENT_SHADER, "cubeFrag");
+
+		cubeProgram = glCreateProgram();
+		glAttachShader(cubeProgram, cubeShaders[0]);
+		glAttachShader(cubeProgram, cubeShaders[1]);
+		glAttachShader(cubeProgram, geom_shader);
+		glBindAttribLocation(cubeProgram, 0, "in_Position");
+		glBindAttribLocation(cubeProgram, 1, "in_Normal");
+		linkProgram(cubeProgram);
+	}
+	void cleanupCube() {
+		glDeleteBuffers(3, cubeVbo);
+		glDeleteVertexArrays(1, &cubeVao);
+
+		glDeleteProgram(cubeProgram);
+		glDeleteShader(cubeShaders[0]);
+		glDeleteShader(cubeShaders[1]);
+	}
+	void updateCube(const glm::mat4& transform) {
+		objMat = transform;
+	}
+	void drawCube(float dt) {
+		glEnable(GL_PRIMITIVE_RESTART);
+		glBindVertexArray(cubeVao);
+		glUseProgram(cubeProgram);
+		glUniformMatrix4fv(glGetUniformLocation(cubeProgram, "objMat"), 1, GL_FALSE, glm::value_ptr(objMat));
+		glUniformMatrix4fv(glGetUniformLocation(cubeProgram, "mv_Mat"), 1, GL_FALSE, glm::value_ptr(RenderVars::_modelView));
+		glUniformMatrix4fv(glGetUniformLocation(cubeProgram, "mvpMat"), 1, GL_FALSE, glm::value_ptr(RenderVars::_MVP));
+		glDrawArrays(GL_POINTS, 0, numVerts);
+
+		move(dt);
+		glBindBuffer(GL_ARRAY_BUFFER, cubeVbo[0]);
+		float *buff = (float*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+		int j = 0;
+		for (int i = 0; i < 60;) {
+			buff[i] = verts[j].x;
+			buff[i + 1] = verts[j].y;
+			buff[i + 2] = verts[j].z;
+			j++;
+			i += 3;
+		}
+		glUnmapBuffer(GL_ARRAY_BUFFER);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		glUseProgram(0);
+		glBindVertexArray(0);
+		glDisable(GL_PRIMITIVE_RESTART);
+	}
+}
+
 
 void GLinit(int width, int height) {
 	glViewport(0, 0, width, height);
@@ -1023,6 +1513,7 @@ void GLinit(int width, int height) {
 	//Cube::setupCube();
 	//MyGeomShader::myInitCode();
 	Geometry2::setupCube();
+	Geometry3::setupCube();
 	/////////////////////////////////////////////////////TODO
 	// Do your init code here
 	// ...
@@ -1036,6 +1527,7 @@ void GLcleanup() {
 	//Cube::cleanupCube();
 	//MyGeomShader::myCleanupCode();
 	Geometry2::cleanupCube();
+	Geometry3::cleanupCube();
 	/////////////////////////////////////////////////////TODO
 	// Do your cleanup code here
 	// ...
@@ -1066,6 +1558,7 @@ void GLrender(float dt) {
 	//Cube::drawCube();
 	//MyGeomShader::myRenderCode(dt);
 	if (ex1)Geometry2::drawCube(accum);
+	else if (ex2)Geometry3::drawCube(accum);
 	/////////////////////////////////////////////////////TODO
 	// Do your render code here
 	// ...
