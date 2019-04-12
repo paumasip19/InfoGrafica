@@ -10,6 +10,7 @@
 #include "GL_framework.h"
 
 bool ex1 = true;
+bool ex2 = false;
 float multValueEx1 = 5;
 ///////// fw decl
 namespace ImGui {
@@ -69,7 +70,7 @@ void GLmousecb(MouseEvent ev) {
 		default: break;
 		}
 	} else {
-		V::prevMouse.button = ev.button;
+		RV::prevMouse.button = ev.button;
 		RV::prevMouse.waspressed = true;
 	}
 	RV::prevMouse.lastx = ev.posx;
@@ -1084,9 +1085,15 @@ void GUI() {
 
 		if (ImGui::Button("Exercice 1", ImVec2(150, 20)))
 		{
-			ex1 = !ex1;
+			ex1 = true;
+			ex2 = false;
 		}
 		ImGui::DragFloat("MultValueEx1", &multValueEx1, 0.05f, 0, 5);
+		if (ImGui::Button("Exercice 2", ImVec2(150, 20)))
+		{
+			ex2 = true;
+			ex1 = false;
+		}
 	}
 	// .........................
 
